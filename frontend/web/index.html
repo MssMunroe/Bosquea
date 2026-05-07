@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="./assets/img/logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bosquea - Inicio</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- El JS inyectará el contenido aquí -->
+    <header class="main-header"></header>
+
+    <!-- Contenedor donde se cargará el Hero -->
+    <div class="hero-container"></div>
+
+    <main class="content-wrapper">        
+
+        <!-- SECCIÓN 2: INFO (Dos cajas verdes) -->
+        <section class="info-container">
+            <div class="info-box info-left">
+                <h2>¿Qué es Bosquea?</h2>
+                <p>Descubre y explora parques naturales, desde nuestra app y web. Consulta mapas interactivos, rutas, y toda la información de cada lugar. Regístrate para acceder a funciones exclusivas.</p>
+                <p class="highlight">¡Únete y transforma tu forma de explorar los espacios protegidos!</p>
+            </div>
+            
+            <div class="info-box info-right">
+                <h2>¿Estás registrado?</h2>
+                <p>Regístrate o inicia sesión para disfrutar de todo lo que Bosquea tiene para ti</p>
+                <button class="btn-register" onclick="window.location.href='./pages/registro.html'">Registrarse</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: GRID DE PARQUES (Tarjetas) -->
+        <section class="parks-grid">
+            
+            <!-- Tarjeta 1: Picos de Europa -->
+            <article class="park-card" data-id="donana">
+                <div class="card-header">
+                    <img src="assets/img/icono_picosdeeuropa.png" alt="Icono" class="card-icon">
+                    <span>Parque Natural</span>
+                </div>
+                <img src="./assets/img/Picos de Europa (1).jpeg" alt="Picos de Europa" class="park-img">
+                <div class="card-body">
+                    <h3>Picos de Europa</h3>
+                    <p class="subtitle">Asturias, León y Cantabria</p>
+                    <p class="excerpt">Representa los ecosistemas ligados al bosque atlántico. Los Picos de Europa presentan la mayor...</p>
+                    <a href="pages/parque-detalle.html?id=donana" class="btn-visit">Visitar</a>
+                </div>
+            </article>
+
+            <!-- Tarjeta 2: Tablas de Daimiel -->
+            <article class="park-card" data-id="donana">
+                <div class="card-header">
+                    <img src="assets/img/icono_tablasdedaimiel.png" alt="Icono" class="card-icon">
+                    <span>Parque Natural</span>
+                </div>
+                <img src="./assets/img/Tablas de Daimiel.jpeg" alt="Tablas de Daimiel" class="park-img">
+                <div class="card-body">
+                    <h3>Tablas de Daimiel</h3>
+                    <p class="subtitle">Ciudad Real</p>
+                    <p class="excerpt">Las Tablas de Daimiel son un humedal prácticamente único en Europa y último representante del...</p>
+                    <a href="pages/parque-detalle.html?id=donana" class="btn-visit">Visitar</a>
+                </div>
+            </article>
+
+            <!-- Tarjeta 3: Doñana -->
+            <article class="park-card" data-id="donana">
+                <div class="card-header">
+                    <img src="assets/img/icono_doñana.png" alt="Icono" class="card-icon">
+                    <span>Parque Natural</span>
+                </div>
+                <img src="./assets/img/Doñana.jpeg" alt="Doñana" class="park-img">
+                <div class="card-body">
+                    <h3>Doñana</h3>
+                    <p class="subtitle">Huelva y Sevilla</p>
+                    <p class="excerpt">Destaca sobre todo la marisma, de extraordinaria importancia como lugar de paso, cría e invernada...</p>
+                    <a href="pages/parque-detalle.html?id=donana" class="btn-visit">Visitar</a>
+                </div>
+            </article>
+
+            <!-- Tarjeta 4: Sierra de Guadarrama -->
+            <article class="park-card" data-id="donana">
+                <div class="card-header">
+                    <img src="assets/img/icono_sierradeguadarrama.png" alt="Icono" class="card-icon">
+                    <span>Parque Natural</span>
+                </div>
+                <img src="./assets/img/Sierra de Guadarrama.jpeg" alt="Sierra de Guadarrama" class="park-img">
+                <div class="card-body">
+                    <h3>Sierra de Guadarrama</h3>
+                    <p class="subtitle">Madrid y Segovia</p>
+                    <p class="excerpt">Las condiciones de la Sierra, más fresca y húmeda que las mesetas, y su menor transformación por la...</p>
+                    <a href="pages/parque-detalle.html?id=donana" class="btn-visit">Visitar</a>
+                </div>
+            </article>
+
+        </section>
+    </main>
+
+    <!-- El JS inyectará el contenido aquí -->
+    <footer class="main-footer"></footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

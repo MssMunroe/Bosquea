@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <title>Bosquea - Mi Perfil</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Header dinámico -->
+    <header class="main-header"></header>
+
+    <section class="profile-header">
+        <div class="profile-banner" style="background-image: url('../assets/img/banner-perfil.jpg');">
+            <!-- El nombre va aquí para que flote sobre la imagen -->
+            <h1 class="profile-username">@MssNatura</h1>
+        </div>
+        <div class="profile-avatar-container">
+            <img src="../assets/img/avatar-user.jfif" alt="Usuario" class="profile-avatar">
+        </div>
+    </section>
+
+    <div class="profile-dashboard">
+        <!-- Sidebar con iconos alineados -->
+        <aside class="profile-sidebar">
+            <nav class="sidebar-menu">
+                <!-- Deseados -->
+                <a href="#" class="sidebar-link active" data-section="deseados">
+                    <i class="fas fa-bookmark main-icon"></i>
+                    <span>Deseados</span>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <!-- Visitados -->
+                <a href="#" class="sidebar-link" data-section="visitados">
+                    <i class="fas fa-folder main-icon"></i>
+                    <span>Visitados</span>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <!-- Comentarios -->
+                <a href="#" class="sidebar-link" data-section="comentarios">
+                    <i class="fas fa-share-alt main-icon"></i>
+                    <span>Comentarios</span>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <!-- Configuración -->
+                <a href="#" class="sidebar-link" data-section="configuracion">
+                    <i class="fas fa-cog main-icon"></i>
+                    <span>Configuración</span>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+
+                <!-- Formularios -->
+                <a href="#" class="sidebar-link" data-section="formularios">
+                    <i class="fas fa-file-alt main-icon"></i>
+                    <span>Formularios</span>
+                    <i class="fas fa-chevron-right arrow-icon"></i>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- En el MAIN, crea las secciones -->
+        <main class="profile-content" id="profile-content">
+
+            <!-- Sección Deseados (Visible por defecto) -->
+            <section id="section-deseados" class="content-section active">
+                <div class="section-header">
+                    <h2>Mis Parques Deseados</h2>
+                    <span class="count-badge">3 Parques</span>
+                </div>
+
+                <div class="mini-parks-grid">
+                    <!-- Card Base 1: Picos de Europa -->
+                    <article class="mini-park-card">
+                        <div class="card-img-wrapper">
+                            <img src="../assets/img/picos-europa-thumb.jpg" alt="Picos de Europa">
+                        </div>
+                        <div class="card-info">
+                            <h3>Picos de Europa</h3>
+                            <p>Asturias, Cantabria y León</p>
+                            <div class="card-actions">
+                                <a href="parque-detalle.html?id=picos-de-europa" class="btn-view">Ver más</a>
+                                <button class="btn-remove" title="Eliminar de deseados">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card Base 2: Doñana -->
+                    <article class="mini-park-card">
+                        <div class="card-img-wrapper">
+                            <img src="../assets/img/donana-thumb.jpg" alt="Doñana">
+                        </div>
+                        <div class="card-info">
+                            <h3>Doñana</h3>
+                            <p>Huelva, Sevilla y Cádiz</p>
+                            <div class="card-actions">
+                                <a href="parque-detalle.html?id=donana" class="btn-view">Ver más</a>
+                                <button class="btn-remove" title="Eliminar de deseados">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card Base 3: Teide -->
+                    <article class="mini-park-card">
+                        <div class="card-img-wrapper">
+                            <img src="../assets/img/teide-thumb.jpg" alt="Teide">
+                        </div>
+                        <div class="card-info">
+                            <h3>El Teide</h3>
+                            <p>Santa Cruz de Tenerife</p>
+                            <div class="card-actions">
+                                <a href="parque-detalle.html?id=teide" class="btn-view">Ver más</a>
+                                <button class="btn-remove" title="Eliminar de deseados">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Sección Visitados -->
+            <section id="section-visitados" class="content-section">
+                <div class="section-header">
+                    <h2>Parques que he visitado</h2>
+                    <!-- He cambiado la clase del badge para poder darle otro color si quieres -->
+                    <span class="count-badge badge-visited">5 Parques</span>
+                </div>
+
+                <div class="mini-parks-grid">
+                    <!-- Card Visitada 1 -->
+                    <article class="mini-park-card">
+                        <div class="card-img-wrapper">
+                            <img src="../assets/img/monfrague-thumb.jpg" alt="Monfragüe">
+                        </div>
+                        <div class="card-info">
+                            <h3>Monfragüe</h3>
+                            <p>Cáceres (Extremadura)</p>
+                            <div class="card-actions">
+                                <a href="parque-detalle.html?id=monfrague" class="btn-view">Ver más</a>
+                                <!-- Aquí el botón podría ser para quitar de visitados o dejar una reseña -->
+                                <button class="btn-remove" title="Quitar de visitados">
+                                    <i class="fas fa-check-circle" style="color: #4b6a32;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Card Visitada 2 -->
+                    <article class="mini-park-card">
+                        <div class="card-img-wrapper">
+                            <img src="../assets/img/sierra-nevada-thumb.jpg" alt="Sierra Nevada">
+                        </div>
+                        <div class="card-info">
+                            <h3>Sierra Nevada</h3>
+                            <p>Granada y Almería</p>
+                            <div class="card-actions">
+                                <a href="parque-detalle.html?id=sierra-nevada" class="btn-view">Ver más</a>
+                                <button class="btn-remove" title="Quitar de visitados">
+                                    <i class="fas fa-check-circle" style="color: #4b6a32;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Sección Comentarios -->
+            <section id="section-comentarios" class="content-section">
+                <div class="section-header">
+                    <h2>Mis Comentarios</h2>
+                    <span class="count-badge">3 Reseñas</span>
+                </div>
+
+                <div class="comments-list">
+                    <!-- Comentario 1 -->
+                    <article class="comment-item">
+                        <img src="../assets/img/timanfaya-thumb.jpg" alt="Timanfaya" class="comment-avatar">
+                        <div class="comment-body">
+                            <h3>Timanfaya</h3>
+                            <p>Los baños estaban lejos de los caminos principales</p>
+                        </div>
+                        <span class="comment-date">18/10/2025</span>
+                    </article>
+
+                    <!-- Comentario 2 -->
+                    <article class="comment-item">
+                        <img src="../assets/img/guadarrama-thumb.jpg" alt="Guadarrama" class="comment-avatar">
+                        <div class="comment-body">
+                            <h3>Sierra de Guadarrama</h3>
+                            <p>El camino era más difícil de lo que decían</p>
+                        </div>
+                        <span class="comment-date">02/09/2025</span>
+                    </article>
+
+                    <!-- Comentario 3 -->
+                    <article class="comment-item">
+                        <img src="../assets/img/donana-thumb.jpg" alt="Doñana" class="comment-avatar">
+                        <div class="comment-body">
+                            <h3>Doñana</h3>
+                            <p>Gracias a los avisos, pudimos ver los flamencos</p>
+                        </div>
+                        <span class="comment-date">24/06/2025</span>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Sección Configuración -->
+            <section id="section-configuracion" class="content-section">
+                <h2>Configuración</h2>
+
+                <div class="config-list">
+                    <!-- Notificaciones con Switch -->
+                    <div class="config-item">
+                        <i class="fas fa-bell config-icon"></i>
+                        <span class="config-label">Notificaciones</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <!-- Seguridad -->
+                    <a href="#" class="config-item">
+                        <i class="fas fa-fingerprint config-icon"></i>
+                        <span class="config-label">Seguridad</span>
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </a>
+
+                    <!-- Datos Perfil -->
+                    <a href="#" class="config-item">
+                        <i class="fas fa-user config-icon"></i>
+                        <span class="config-label">Datos Perfil</span>
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </a>
+
+                    <!-- Reportes -->
+                    <a href="#" class="config-item">
+                        <i class="fas fa-bug config-icon"></i>
+                        <span class="config-label">Reportes</span>
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </a>
+
+                    <!-- Bloqueados -->
+                    <a href="#" class="config-item">
+                        <i class="fas fa-lock config-icon"></i>
+                        <span class="config-label">Bloqueados</span>
+                        <div class="config-right">
+                            <span class="config-count">2</span>
+                            <i class="fas fa-chevron-right config-arrow"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Sección Formularios -->
+            <section id="section-formularios" class="content-section">
+                <h2>Formularios</h2>
+
+                <form class="report-form">
+                    <!-- Campo Email -->
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <!-- Campo Descripción -->
+                    <div class="form-group">
+                        <label for="error-desc">Describe el error <span class="required">*</span></label>
+                        <span class="label-subtitle">Por favor, detalla el problema</span>
+                        <textarea id="error-desc" name="description" rows="5" required></textarea>
+                    </div>
+
+                    <!-- Campo Subida de Archivo (Drag & Drop) -->
+                    <div class="form-group">
+                        <label>Captura del problema</label>
+                        <div class="file-drop-area" id="drop-area">
+                            <i class="fas fa-folder-open upload-icon"></i>
+                            <p>Arrastra el archivo o <span class="browse-text">buscar</span></p>
+                            <input type="file" id="file-input" hidden>
+                        </div>
+                    </div>
+
+                    <!-- Botón Enviar -->
+                    <button type="submit" class="btn-submit-report">Enviar Reporte</button>
+                </form>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer dinámico -->
+    <footer class="main-footer"></footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+
+</html>
