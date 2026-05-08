@@ -1,17 +1,17 @@
-id,nombre,ubi,hec
-p01,Aigüestortes i Estany de Sant Maurici,Pirineo Catalán (Lleida),14.119
-p02,Archipiélago de Cabrera,Islas Baleares (Mallorca),90.800
-p03,Cabañeros,Castilla-La Mancha (Ciudad Real / Toledo),40.856
-p04,Caldera de Taburiente,Isla de La Palma (Canarias),4.690
-p05,Doñana,Andalucía (Huelva / Sevilla / Cádiz),54.252
-p06,Garajonay,Isla de La Gomera (Canarias),3.984
-p07,Islas Atlánticas de Galicia,Galicia (archipiélagos de Cíes / Ons / Sálvora / Cortegada),8.480
-p08,Monfragüe,Extremadura (Cáceres / Badajoz),18.396
-p09,Ordesa y Monte Perdido,Pirineo Aragonés (Huesca),15.696
-p10,Picos de Europa,Asturias (Cantabria y Castilla y León),67.127
-p11,Sierra de Guadarrama,Comunidad de Madrid / Castilla y León,33.960
-p12,Sierra Nevada,Andalucía (Granada y Almería),85.883
-p13,Tablas de Daimiel,Castilla-La Mancha (Ciudad Real),3.030
-p14,Teide,Isla de Tenerife (Canarias),18.990
-p15,Timanfaya,Isla de Lanzarote (Canarias),5.108
-p16,Sierra de las Nieves,Andalucía (Málaga),22.979
+id_parque,nombre,ubicacion,tamanio
+1,Aigüestortes i Estany de Sant Maurici,Pirineo Catalán (Lleida),14.119
+2,Archipiélago de Cabrera,Islas Baleares (Mallorca),90.800
+3,Cabañeros,Castilla-La Mancha (Ciudad Real / Toledo),40.856
+4,Caldera de Taburiente,Isla de La Palma (Canarias),4.690
+5,Doñana,Andalucía (Huelva / Sevilla / Cádiz),54.252
+6,Garajonay,Isla de La Gomera (Canarias),3.984
+7,Islas Atlánticas de Galicia,Galicia (archipiélagos de Cíes / Ons / Sálvora / Cortegada),8.480
+8,Monfragüe,Extremadura (Cáceres / Badajoz),18.396
+9,Ordesa y Monte Perdido,Pirineo Aragonés (Huesca),15.696
+10,Picos de Europa,Asturias (Cantabria y Castilla y León),67.127
+11,Sierra de Guadarrama,Comunidad de Madrid / Castilla y León,33.960
+12,Sierra Nevada,Andalucía (Granada y Almería),85.883
+13,Tablas de Daimiel,Castilla-La Mancha (Ciudad Real),3.030
+14,Teide,Isla de Tenerife (Canarias),18.990
+15,Timanfaya,Isla de Lanzarote (Canarias),5.108
+16,Sierra de las Nieves,Andalucía (Málaga),22.979

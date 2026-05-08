@@ -1,32 +1,32 @@
-id,nombre,telefono,email,web,dificultad,id_parque  
-r01,Ruta al Estany de Sant Maurici,+34 973 696 189,pnaiguestortes@gencat.cat,https://www.visitpirineus.com/es/node/25,media,p01  
-r02,Carros de Foc,+34 973 624 036,info.aiguestortes@oapn.es,https://www.visitpirineus.com/es/node/25,alta,p01  
-r03,Ruta al Castillo de Cabrera,+34 971 177 641,parcnacionaldecabrera@gmail.com,https://www.spain.info/es/naturaleza/parque-nacional-cabrera/,baja,p02  
-r04,Ruta a la Cova Blava,+34 622 574 806,info@marcabrera.com,https://www.marcabrera.com/es/excursion/cabrera-cueva-azul,baja,p02  
-r05,Ruta del Boquerón del Estena,+34 926 783 297,usopublicocabaneros@oapn.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabaneros.html,baja,p03  
-r06,Ruta Colada de Navalrincón,+34 926 783 297,usopublicocabaneros@oapn.es,https://es.wikiloc.com/rutas-senderismo/colada-de-navalrincon-16869942,media,p03  
-r07,Barranco de las Angustias,+34 922 922 280,infcalde.cmayot@gobiernodecanarias.org,https://es.wikiloc.com/rutas-senderismo/la-palma-barranco-de-las-angustias-cascada-de-colores-pr-lp-13-3210039,media,p04  
-r08,Cascada de Colores,+34 922 922 280,infcalde.cmayot@gobiernodecanarias.org,https://es.wikiloc.com/rutas-senderismo/cascada-de-colores-la-palma-100551563,baja,p04  
-r09,Laguna del Jaral,+34 959 439 629,infojaral.visitante@juntadeandalucia.es,https://es.wikiloc.com/rutas-senderismo/laguna-del-jaral-acantilados-del-asperillo-en-donana-8413958,media,p05  
-r10,Ruta de la Rocina,+34 959 439 569,cvrocina.pndonana.cagpds@juntadeandalucia.es,https://www.miteco.gob.es/eu/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/donana/guia-visitante/rocina.html,baja,p05  
-r11,Bosque del Cedro,+34 922 922 600,informacion.garajonay@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/garajonay.html,media,p06  
-r12,Raso de la Bruma,+34 922 922 600,informacion.garajonay@gobiernodecanarias.org,https://www.alltrails.com/es/ruta/spain/la-gomera/gr-132-circular-raso-de-la-bruma,**difícil**,p06  
-r13,Ruta al Faro de Cíes,+34 886 218 090,iatlanticas@xunta.gal,https://www.islas-cies.org/actividades-islas-cies/rutas-islas-cies/,media,p07  
-r14,Faro de Sálvora,+34 886 218 090,iatlanticas@xunta.gal,https://patrimonionatural.xunta.gal/es/node/1325,baja,p07  
-r15,Ruta Amarilla,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfrague/guia-visitante/itinerarios.html,baja,p08  
-r16,Ruta del Castillo de Monfragüe,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfragüe/guia-visitante/itinerarios.html,media,p08  
-r17,Faja de las Flores,+34 974 341 201,pnmonfrague@juntaex.es,https://www.rutasparquesnacionales.es/parques-nacionales-de-espa%C3%B1a/ordesa-y-monte-perdido/faja-de-las-flores/,alta,p09  
-r18,Ruta del Cares,+34 942 738 109,administracioncangas1@pnpeu.es,https://www.miteco.gob.es/en/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/picos-europa/guia-visitante/ruta-cares.html,media,p10  
-r19,Vega de Ario,+34 942 738 109,administracioncangas2@pnpeu.es,,media,p10  
-r20,Peñalara y Laguna Grande,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/gredos/guia-visitante/peñalara.html,media,p11  
-r21,La Pedriza / Charca Verde,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cuenca/guia-visitante/la-pedriza.html,media,p11  
-r22,Laguna de las Yeguas,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/gredos/guia-visitante/laguna-yeguas.html,baja,p12  
-r23,Ascenso al Mulhacén,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/sierra-nevada/guia-visitante/itinerarios.html,alta,p12  
-r24,Itinerario de la Laguna Permanente,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/ordesa-y-monte-perdido/guia-visitante/itinerarios.html,baja,p13  
-r25,Itinerario de la Torre de Prado Ancho,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/ordesa-y-monte-perdido/guia-visitante/itinerarios.html,baja,p13  
-r26,Ascenso al Teide,+34 922 290 129,teide.maot@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/teide/guia-visitante.html,alta,p14  
-r27,Roques de García,+34 922 290 129,teide.maot@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/teide/guia-visitante/itinerarios.html,baja,p14  
-r28,Ruta Tremesana,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabañeros/guia-visitante/itinerarios.html,baja,p15  
-r29,Ruta de los Volcanes,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabañeros/guia-visitante/volcanes.html,alta,p15  
-r30,Pinsapar de Yunquera,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/los-alcornocales/guia-visitante/itinerarios.html,media,p16  
-r31,Sendero de los Quejigales,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfrague/guia-visitante/itinerarios.html,alta,p16  
+id_ruta,nombre,telefono,email,web,dificultad,id_parque
+1,Ruta al Estany de Sant Maurici,+34 973 696 189,pnaiguestortes@gencat.cat,https://www.visitpirineus.com/es/node/25,media,p01  
+2,Carros de Foc,+34 973 624 036,info.aiguestortes@oapn.es,https://www.visitpirineus.com/es/node/25,alta,p01  
+3,Ruta al Castillo de Cabrera,+34 971 177 641,parcnacionaldecabrera@gmail.com,https://www.spain.info/es/naturaleza/parque-nacional-cabrera/,baja,p02  
+4,Ruta a la Cova Blava,+34 622 574 806,info@marcabrera.com,https://www.marcabrera.com/es/excursion/cabrera-cueva-azul,baja,p02  
+5,Ruta del Boquerón del Estena,+34 926 783 297,usopublicocabaneros@oapn.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabaneros.html,baja,p03  
+6,Ruta Colada de Navalrincón,+34 926 783 297,usopublicocabaneros@oapn.es,https://es.wikiloc.com/rutas-senderismo/colada-de-navalrincon-16869942,media,p03  
+7,Barranco de las Angustias,+34 922 922 280,infcalde.cmayot@gobiernodecanarias.org,https://es.wikiloc.com/rutas-senderismo/la-palma-barranco-de-las-angustias-cascada-de-colores-pr-lp-13-3210039,media,p04  
+8,Cascada de Colores,+34 922 922 280,infcalde.cmayot@gobiernodecanarias.org,https://es.wikiloc.com/rutas-senderismo/cascada-de-colores-la-palma-100551563,baja,p04  
+9,Laguna del Jaral,+34 959 439 629,infojaral.visitante@juntadeandalucia.es,https://es.wikiloc.com/rutas-senderismo/laguna-del-jaral-acantilados-del-asperillo-en-donana-8413958,media,p05  
+10,Ruta de la Rocina,+34 959 439 569,cvrocina.pndonana.cagpds@juntadeandalucia.es,https://www.miteco.gob.es/eu/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/donana/guia-visitante/rocina.html,baja,p05  
+11,Bosque del Cedro,+34 922 922 600,informacion.garajonay@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/garajonay.html,media,p06  
+12,Raso de la Bruma,+34 922 922 600,informacion.garajonay@gobiernodecanarias.org,https://www.alltrails.com/es/ruta/spain/la-gomera/gr-132-circular-raso-de-la-bruma,**difícil**,p06  
+13,Ruta al Faro de Cíes,+34 886 218 090,iatlanticas@xunta.gal,https://www.islas-cies.org/actividades-islas-cies/rutas-islas-cies/,media,p07  
+14,Faro de Sálvora,+34 886 218 090,iatlanticas@xunta.gal,https://patrimonionatural.xunta.gal/es/node/1325,baja,p07  
+15,Ruta Amarilla,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfrague/guia-visitante/itinerarios.html,baja,p08  
+16,Ruta del Castillo de Monfragüe,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfragüe/guia-visitante/itinerarios.html,media,p08  
+17,Faja de las Flores,+34 974 341 201,pnmonfrague@juntaex.es,https://www.rutasparquesnacionales.es/parques-nacionales-de-espa%C3%B1a/ordesa-y-monte-perdido/faja-de-las-flores/,alta,p09  
+18,Ruta del Cares,+34 942 738 109,administracioncangas1@pnpeu.es,https://www.miteco.gob.es/en/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/picos-europa/guia-visitante/ruta-cares.html,media,p10  
+19,Vega de Ario,+34 942 738 109,administracioncangas2@pnpeu.es,,media,p10  
+20,Peñalara y Laguna Grande,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/gredos/guia-visitante/peñalara.html,media,p11  
+21,La Pedriza / Charca Verde,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cuenca/guia-visitante/la-pedriza.html,media,p11  
+22,Laguna de las Yeguas,+34 915 468 111,oficina@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/gredos/guia-visitante/laguna-yeguas.html,baja,p12  
+23,Ascenso al Mulhacén,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/sierra-nevada/guia-visitante/itinerarios.html,alta,p12  
+24,Itinerario de la Laguna Permanente,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/ordesa-y-monte-perdido/guia-visitante/itinerarios.html,baja,p13  
+25,Itinerario de la Torre de Prado Ancho,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/ordesa-y-monte-perdido/guia-visitante/itinerarios.html,baja,p13  
+26,Ascenso al Teide,+34 922 290 129,teide.maot@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/teide/guia-visitante.html,alta,p14  
+27,Roques de García,+34 922 290 129,teide.maot@gobiernodecanarias.org,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/teide/guia-visitante/itinerarios.html,baja,p14  
+28,Ruta Tremesana,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabañeros/guia-visitante/itinerarios.html,baja,p15  
+29,Ruta de los Volcanes,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/cabañeros/guia-visitante/volcanes.html,alta,p15  
+30,Pinsapar de Yunquera,+34 915 468 111,info@parquesnacionales.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/los-alcornocales/guia-visitante/itinerarios.html,media,p16  
+31,Sendero de los Quejigales,+34 927 199 503,pnmonfrague@juntaex.es,https://www.miteco.gob.es/es/parques-nacionales-oapn/red-parques-nacionales/parques-nacionales/monfrague/guia-visitante/itinerarios.html,alta,p16  
