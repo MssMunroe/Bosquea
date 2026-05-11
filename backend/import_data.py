@@ -1,7 +1,7 @@
 import os
 import csv
-from app import app
-from models import db, ParqueNatural, Ruta, Usuario, Rol
+from backend.app import app
+from backend.models import db, ParqueNatural, Ruta, Usuario, Rol
 
 def cargar_csv():
     with app.app_context():

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bosquea_gestion>
+    <nuevas_rutas>
+        <ruta id_parque="1">
+            <nombre>Senda de los Abetos</nombre>
+            <dificultad>Baja</dificultad>
+            <web>https://parquesnacionales.es/senda-abetos</web>
+        </ruta>
+    </nuevas_rutas>
+
+    <metricas_mes mes="Enero" año="2026">
+        <parque id="1">
+            <nombre>Aigüestortes</nombre>
+            <visitantes_totales>1250</visitantes_totales>
+            <incidencias_reportadas>4</incidencias_reportadas>
+        </parque>
+        <parque id="5">
+            <nombre>Doñana</nombre>
+            <visitantes_totales>3100</visitantes_totales>
+            <incidencias_reportadas>12</incidencias_reportadas>
+        </parque>
+    </metricas_mes>
+</bosquea_gestion>
