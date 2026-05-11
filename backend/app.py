@@ -1,10 +1,13 @@
-import os
+import os, xlsxwriter
 import xml.etree.ElementTree as ET
 
 from flask import Flask, jsonify, request, send_file, abort
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from io import BytesIO
+from sqlalchemy import func
+
 from backend.models import db, Usuario, ParqueNatural, Ruta, Incidencia, Visitado, Deseado, Rol, Comentario, Avistamiento, AnimalDestacado
 
 app = Flask(__name__)
@@ -309,6 +312,58 @@ def export_xml_visitados():
     return send_file("reporte.xml", as_attachment=True)
 
 
+@app.route('/api/admin/report-chart', methods=['GET'])
+def export_excel_chart():
+    # 1. Creamos un archivo en memoria
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet("Estadísticas")
+    
+    # 2. Consultamos datos: Contamos visitas agrupadas por mes
+    # (Esto es un ejemplo, asumiendo que tienes fechas en 'Visitado')
+    stats = db.session.query(
+        func.strftime('%m', Visitado.fecha_visita).label('mes'),
+        func.count(Visitado.id_usuario).label('total')
+    ).group_by('mes').all()
+
+    # 3. Escribimos los datos en el Excel
+    worksheet.write('A1', 'Mes')
+    worksheet.write('B1', 'Visitantes')
+    
+    meses_nombres = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    
+    row = 1
+    for s in stats:
+        nombre_mes = meses_nombres[int(s.mes) - 1]
+        worksheet.write(row, 0, nombre_mes)
+        worksheet.write(row, 1, s.total)
+        row += 1
+
+    # 4. CREAMOS LA GRÁFICA
+    chart = workbook.add_chart({'type': 'column'}) # Gráfico de columnas
+    chart.add_series({
+        'name':       'Visitantes por Mes',
+        'categories': ['Estadísticas', 1, 0, row - 1, 0],
+        'values':     ['Estadísticas', 1, 1, row - 1, 1],
+    })
+    
+    chart.set_title({'name': 'Afluencia Mensual de Parques'})
+    chart.set_x_axis({'name': 'Meses'})
+    chart.set_y_axis({'name': 'Número de Personas'})
+
+    # Insertamos la gráfica en la hoja
+    worksheet.insert_chart('D2', chart)
+
+    workbook.close()
+    output.seek(0)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="Reporte_Mensual_Bosquea.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 # --- BÚSQUEDA GLOBAL ---
 
 @app.route('/api/search', methods=['GET'])
@@ -332,5 +387,6 @@ def search():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
