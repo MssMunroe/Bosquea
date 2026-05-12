@@ -1,7 +1,7 @@
 import os, xlsxwriter
 import xml.etree.ElementTree as ET
 
-from flask import Flask, jsonify, request, send_file, abort
+from flask import Flask, jsonify, request, send_file, abort, render_template
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -143,6 +143,19 @@ def admin_delete_park(id):
     db.session.delete(p)
     db.session.commit()
     return jsonify({"mensaje": "Parque eliminado físicamente"}), 200
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    # Consultamos los datos que queremos mostrar
+    parques = ParqueNatural.query.all()
+    incidencias = Incidencia.query.all()
+    total_usuarios = Usuario.query.count()
+    
+    # Enviamos los datos a la plantilla HTML
+    return render_template('admin.html', 
+                           parques=parques, 
+                           incidencias=incidencias, 
+                           total_usuarios=total_usuarios)
 
 # --- 3. RUTAS ---
 
