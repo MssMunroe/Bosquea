@@ -1,8 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-from backend.app import app
-from backend.models import db, ParqueNatural, Ruta
+from app import app
+from models import db, ParqueNatural, Ruta
 
 def generar_xml_real():
     with app.app_context():
@@ -26,7 +26,7 @@ def generar_xml_real():
             
             # Buscamos las rutas asociadas a este parque en la BBDD
             rutas_node = ET.SubElement(parque_node, 'rutas_disponibles')
-            rutas = Ruta.query.filter_by(parque_id=p.id_parque).all()
+            rutas = Ruta.query.filter_by(id_parque=p.id_parque).all()
             
             for r in rutas:
                 ruta_item = ET.SubElement(rutas_node, 'ruta')

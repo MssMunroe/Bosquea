@@ -160,28 +160,6 @@ function inicializarMapa() {
 }
 
 /**
- * DETALLE: Extrae el ID de la URL y rellena la ficha del parque
- */
-function renderParque() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    const p = datosParques[id];
-
-    if (p) {
-        document.getElementById('park-name').innerText = p.nombre;
-        document.getElementById('park-image').src = p.imagen;
-        document.getElementById('park-description').innerText = p.descripcion;
-        document.getElementById('data-surface-total').innerText = p.superficieTotal;
-        document.getElementById('data-surface-socio').innerText = p.superficieSocio;
-        document.getElementById('data-provincias').innerText = p.provincias;
-        document.getElementById('data-comunidades').innerText = p.comunidades;
-
-        const coordsList = document.getElementById('data-coords');
-        coordsList.innerHTML = p.coordenadas.map(c => `<li>${c}</li>`).join('');
-    }
-}
-
-/**
  * PERFIL: Maneja el cambio de pestañas (Deseados, Comentarios, etc.)
  */
 function gestionarTabsPerfil() {

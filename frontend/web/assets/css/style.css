@@ -196,7 +196,7 @@ button { cursor: pointer; transition: 0.3s; font-family: inherit; }
 }
 
 /* Grid de Parques (Index) */
-.parks-grid {
+.parques-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
@@ -629,7 +629,7 @@ button { cursor: pointer; transition: 0.3s; font-family: inherit; }
 }
 
 /* Mini Cards de Deseados/Visitados */
-.mini-parks-grid {
+.mini-parques-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;

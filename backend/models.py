@@ -34,8 +34,9 @@ class ParqueNatural(db.Model):
     nombre = db.Column(db.String(150), nullable=False)
     descripcion = db.Column(db.Text)
     ubicacion = db.Column(db.String(200), nullable=False)
-    imagen_url = db.Column(db.String(255))
     tamanio = db.Column(db.String(50))
+    img = db.Column(db.String(255))
+
 
 # RUTAS
 class Ruta(db.Model):
@@ -47,7 +48,7 @@ class Ruta(db.Model):
     email = db.Column(db.String(150))
     web = db.Column(db.String(200))
 
-    parque_id = db.Column(db.Integer, db.ForeignKey('parques_naturales.id_parque'), nullable=False)
+    id_parque = db.Column(db.Integer, db.ForeignKey('parques_naturales.id_parque'), nullable=False)
 
 # COMENTARIOS
 class Comentario(db.Model):

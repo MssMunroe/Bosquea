@@ -1,2 +1,3 @@
-id_usuario,nickname,nombre,email,telefono,dni,codigo_postal,contra,rol_id
-2,MssMunroe,Irene,irenemaza@gmail.com,600000000,53426662z,46200,contr4_segur4,1
+id_usuario|nickname|nombre|email|telefono|dni|codigo_postal|contra|rol_id
+1|AdminTest|Admin|admin@gmail.com|600000000|53426662z|46200|contra_admin|1
+2|MssMunroe|Irene|irenemaza@gmail.com|600000001|52426663z|46200|contr4_segur4|2

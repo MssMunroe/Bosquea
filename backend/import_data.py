@@ -1,7 +1,7 @@
 import os
 import csv
-from backend.app import app
-from backend.models import db, ParqueNatural, Ruta, Usuario, Rol
+from app import app
+from models import db, ParqueNatural, Ruta, Usuario, Rol
 
 def cargar_csv():
     with app.app_context():
@@ -30,7 +30,7 @@ def cargar_csv():
 
             with open(ruta_archivo, encoding='utf-8') as f:
                 # Usamos skipinitialspace por si hay espacios tras las comas
-                reader = csv.DictReader(f, skipinitialspace=True)
+                reader = csv.DictReader(f, delimiter='|', skipinitialspace=True)
                 contador = 0
                 for row in reader:
                     # Usamos el primer campo (ID) para comprobar si ya existe
@@ -48,8 +48,10 @@ def cargar_csv():
         importar_tabla('parques.csv', ParqueNatural, lambda row: ParqueNatural(
             id_parque=row['id_parque'],
             nombre=row['nombre'],
+            descripcion=row['descripcion'],
             ubicacion=row['ubicacion'],
-            tamanio=row['tamanio']
+            tamanio=row['tamanio'],
+            img=row['img']
         ))
 
         # Usuarios

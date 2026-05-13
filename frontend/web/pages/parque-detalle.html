@@ -13,44 +13,14 @@
     <header class="main-header"></header>
     
     <main class="content-wrapper detail-page">
-        <section class="park-detail-container">
-            <!-- Título con línea inferior -->
-            <h1 id="park-name" class="detail-title">Cargando Parque...</h1>
-            
-            <!-- Imagen Principal -->
-            <div class="detail-image-container">
-                <img id="park-image" src="" alt="Imagen del parque">
-            </div>
-
-            <!-- Descripción -->
-            <article class="detail-description">
-                <p id="park-description"></p>
-            </article>
-
-            <!-- Datos Básicos -->
-            <section class="detail-data">
-                <h2>Datos básicos</h2>
-                <ul class="data-list">
-                    <li><strong>Superficie:</strong>
-                        <ul>
-                            <li>Superficie total: <span id="data-surface-total"></span></li>
-                            <li>Área de influencia socioeconómica: <span id="data-surface-socio"></span></li>
-                        </ul>
-                    </li>
-                    <li><strong>Provincias:</strong> <span id="data-provincias"></span></li>
-                    <li><strong>Comunidades Autónomas:</strong> <span id="data-comunidades"></span></li>
-                    <li><strong>Coordenadas localización</strong> (Latitud, Longitud):
-                        <ul id="data-coords">
-                            <!-- Las coordenadas se cargarán aquí -->
-                        </ul>
-                    </li>
-                </ul>
-            </section>
+        <section class="park-detail-container" id="parque-detail">
+            <p class="loading">Cargando parque...</p>
         </section>
     </main>
     <!-- Footer dinámico -->
     <footer class="main-footer"></footer>
 
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/parque.js"></script>
 </body>
 </html>

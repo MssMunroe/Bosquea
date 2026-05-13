@@ -1,14 +1,14 @@
 import os, xlsxwriter
 import xml.etree.ElementTree as ET
 
-from flask import Flask, jsonify, request, send_file, abort, render_template
+from flask import Flask, jsonify, request, send_file, abort, render_template, session, redirect, url_for
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from io import BytesIO
 from sqlalchemy import func
 
-from backend.models import db, Usuario, ParqueNatural, Ruta, Incidencia, Visitado, Deseado, Rol, Comentario, Avistamiento, AnimalDestacado
+from models import db, Usuario, ParqueNatural, Ruta, Incidencia, Visitado, Deseado, Rol, Comentario, Avistamiento, AnimalDestacado
 
 app = Flask(__name__)
 CORS(app)
@@ -41,7 +41,7 @@ def register():
         contra=pass_cifrada,
         dni=data['dni'],
         codigo_postal=data.get('codigo_postal'),
-        rol_id=2
+        rol_id=data.get('rol_id', 2)
     )
     db.session.add(nuevo_usuario)
     db.session.commit()
@@ -54,10 +54,12 @@ def login():
 
     if usuario and check_password_hash(usuario.contra, data['contra']):
         return jsonify({
-            "mensaje": "Login exitoso",
-            "id_usuario": usuario.id_usuario,
-            "nickname": usuario.nickname,
-            "rol": usuario.rol_info.nombre
+            "mensaje": "Login correcto",
+            "usuario": {
+                "nickname": usuario.nickname,
+                "rol_id": usuario.rol_id,
+                "email": usuario.email
+            }
         }), 200
         
     return jsonify({"error": "Email o contraseña incorrectos"}), 401
@@ -65,7 +67,6 @@ def login():
 @app.route('/api/users/<int:id>/profile', methods=['GET'])
 def get_user_profile(id):
     user = Usuario.query.get_or_404(id)
-    # Contamos sus registros en las tablas intermedias
     visitados_count = Visitado.query.filter_by(id_usuario=id).count()
     deseados_count = Deseado.query.filter_by(id_usuario=id).count()
     
@@ -81,18 +82,17 @@ def get_user_profile(id):
 
 # --- 2. PARQUES & ANIMALES ---
 
-@app.route('/api/parks', methods=['GET'])
-def get_parks():
+@app.route('/api/parques', methods=['GET'])
+def get_parques():
     parques = ParqueNatural.query.all()
     return jsonify([{
         "id": p.id_parque,
         "nombre": p.nombre,
         "ubicacion": p.ubicacion,
         "tamanio": p.tamanio,
-        "imagen": p.imagen_url
     } for p in parques])
 
-@app.route('/api/parks/<int:id>', methods=['GET'])
+@app.route('/api/parques/<int:id>', methods=['GET'])
 def get_park_detail(id):
     p = ParqueNatural.query.get_or_404(id)
     # Incluimos animales destacados del parque
@@ -102,11 +102,12 @@ def get_park_detail(id):
         "nombre": p.nombre,
         "descripcion": p.descripcion,
         "ubicacion": p.ubicacion,
+        "img": p.img,
         "animales": [{"id": a.id_animal, "nombre": a.nombre} for a in animales]
     })
 
 # CRUP solo para los ADMIN
-@app.route('/api/admin/parks', methods=['POST'])
+@app.route('/api/admin/parques', methods=['POST'])
 def admin_create_park():
     data = request.get_json()
     verificar_admin(data.get('rol_id'))
@@ -121,7 +122,7 @@ def admin_create_park():
     db.session.commit()
     return jsonify({"mensaje": "Parque creado correctamente"}), 201
 
-@app.route('/api/admin/parks/<int:id>', methods=['PUT'])
+@app.route('/api/admin/parques/<int:id>', methods=['PUT'])
 def admin_edit_park(id):
     data = request.get_json()
     verificar_admin(data.get('rol_id'))
@@ -134,7 +135,7 @@ def admin_edit_park(id):
     db.session.commit()
     return jsonify({"mensaje": "Parque actualizado"}), 200
 
-@app.route('/api/admin/parks/<int:id>', methods=['DELETE'])
+@app.route('/api/admin/parques/<int:id>', methods=['DELETE'])
 def admin_delete_park(id):
     rol_id = request.args.get('rol_id') 
     verificar_admin(rol_id)
@@ -146,6 +147,11 @@ def admin_delete_park(id):
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
+
+    #Verificamos que sea admin el user
+    if not session.get('user_rol') == 1:
+        return "Acceso denegado. Solo para administradores.", 403
+    
     # Consultamos los datos que queremos mostrar
     parques = ParqueNatural.query.all()
     incidencias = Incidencia.query.all()
@@ -159,15 +165,42 @@ def admin_dashboard():
 
 # --- 3. RUTAS ---
 
-@app.route('/api/parks/<int:id>/routes', methods=['GET'])
+@app.route('/api/parques/<int:id>/routes', methods=['GET'])
 def get_park_routes(id):
-    rutas = Ruta.query.filter_by(parque_id=id).all()
+    rutas = Ruta.query.filter_by(id_parque=id).all()
     return jsonify([{
         "id": r.id_ruta,
         "nombre": r.nombre,
         "dificultad": r.dificultad,
         "web": r.web
     } for r in rutas])
+
+@app.route('/api/routes', methods=['GET'])
+def get_all_routes():
+    try:
+        # Importante: Asegúrate de que 'Ruta' y 'ParqueNatural' estén importados
+        rutas = Ruta.query.all()
+        resultado = []
+        
+        for r in rutas:
+            # Buscamos el parque asociado
+            parque = ParqueNatural.query.get(r.id_parque)
+            
+            resultado.append({
+                "id": r.id_ruta,
+                "nombre": r.nombre,
+                "dificultad": r.dificultad,
+                "web": r.web,
+                "parque_nombre": parque.nombre if parque else "Parque no encontrado",
+                "parque_ubicacion": parque.ubicacion if parque else "N/A"
+            })
+        
+        return jsonify(resultado)
+    
+    except Exception as e:
+        # Esto imprimirá el error real en tu terminal de VS Code
+        print(f"Error en /api/routes: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/routes', methods=['POST'])
 def create_route():
@@ -177,7 +210,7 @@ def create_route():
         nombre=data['nombre'],
         dificultad=data['dificultad'],
         web=data.get('web'),
-        parque_id=data['id_parque']
+        id_parque=data['id_parque']
     )
     db.session.add(nueva_ruta)
     db.session.commit()
@@ -293,7 +326,7 @@ def import_xml():
                 nombre=ruta_tag.find('nombre').text,
                 dificultad=ruta_tag.find('dificultad').text,
                 web=ruta_tag.find('web').text,
-                parque_id=int(ruta_tag.get('id_parque'))
+                id_parque=int(ruta_tag.get('id_parque'))
             )
             db.session.add(nueva_ruta)
             rutas_creadas += 1
@@ -313,7 +346,7 @@ def export_xml_visitados():
     for v in visitados:
         nodo = ET.SubElement(root, "registro")
         ET.SubElement(nodo, "usuario_id").text = str(v.id_usuario)
-        ET.SubElement(nodo, "parque_id").text = str(v.id_parque)
+        ET.SubElement(nodo, "id_parque").text = str(v.id_parque)
         ET.SubElement(nodo, "fecha").text = v.fecha_visita.strftime("%Y-%m-%d")
     
     # Lo convertimos a string y lo enviamos como archivo
