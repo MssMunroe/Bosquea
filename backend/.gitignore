@@ -15,3 +15,17 @@ instance/
 # Archivos de configuración del sistema
 .DS_Store
 Thumbs.db
+
+# Android específico
+frontend/mobile/**/.gradle/
+frontend/mobile/**/build/
+frontend/mobile/**/local.properties
+frontend/mobile/**/Captures/
+frontend/mobile/**/.externalNativeBuild/
+frontend/mobile/**/.cxx/
+frontend/mobile/**/*.keystore
+frontend/mobile/**/*.jks
+frontend/mobile/**/.idea/libraries/
+frontend/mobile/**/.idea/modules.xml
+frontend/mobile/**/.idea/workspace.xml
+frontend/mobile/**/*.iml
