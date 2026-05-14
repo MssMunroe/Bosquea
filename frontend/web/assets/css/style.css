@@ -131,7 +131,7 @@ button { cursor: pointer; transition: 0.3s; font-family: inherit; }
     width: 100%;
     height: 150px;
     background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), 
-                url('../img/background-hero.jpg') no-repeat center center/cover;
+                url('https://raw.githubusercontent.com/MssMunroe/Bosquea/refs/heads/main/frontend/web/assets/img/background-hero.jpg') no-repeat center center/cover;
     border-radius: var(--border-radius);
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     display: flex;
@@ -628,6 +628,86 @@ button { cursor: pointer; transition: 0.3s; font-family: inherit; }
     font-size: 0.9rem;
 }
 
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* AJUSTE AQUÍ: Dale espacio respecto al techo */
+    min-height: calc(100vh - 80px); /* 80px suele ser la altura media de un header */
+    padding-top: 80px; 
+    
+    background-color: #f9fbf7;
+    box-sizing: border-box; /* Importante para que el padding no sume tamaño extra */
+}
+
+.login-box {
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #6b8e61; /* Verde de la imagen */
+    border-radius: 30px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+}
+
+.input-group i {
+    color: #6b8e61;
+    margin-right: 15px;
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    color: #555;
+}
+
+.btn-login-main {
+    background-color: #4b6a32; /* Verde oscuro del botón */
+    color: white;
+    width: 100%;
+    padding: 15px;
+    border-radius: 35px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 30px 0;
+}
+
+.divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ccc;
+}
+
+.divider span {
+    padding: 0 10px;
+    color: #888;
+}
+
+.social-icons i {
+    font-size: 30px;
+    margin: 0 15px;
+    color: #4b6a32;
+    cursor: pointer;
+}
+
 /* Mini Cards de Deseados/Visitados */
 .mini-parques-grid {
     display: grid;
@@ -658,15 +738,30 @@ button { cursor: pointer; transition: 0.3s; font-family: inherit; }
     align-items: center;
 }
 
-.btn-remove {
-    background: none;
+.logout-style {
+    margin-top: auto; /* Empuja el botón hacia abajo si el sidebar es flex */
+    color: #d9534f !important; /* Color rojizo para indicar salida */
     border: none;
-    color: #cc0000;
-    font-size: 1.1rem;
-    transition: 0.2s;
+    background: none;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: inherit;
 }
 
-.btn-remove:hover { transform: scale(1.2); }
+.logout-style:hover {
+    background-color: #fff1f0; /* Un fondo rosado suave al pasar el ratón */
+    color: #c9302c !important;
+}
+
+.sidebar-footer {
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+}
 
 /* =========================================
    9. FORMULARIOS (REGISTRO Y REPORTES)

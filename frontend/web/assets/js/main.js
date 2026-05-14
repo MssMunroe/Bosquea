@@ -4,36 +4,13 @@
  * ============================================================
  */
 
-/* 1. DATOS ESTÁTICOS (Simulación de Base de Datos) */
-const datosParques = {
-    "picos-de-europa": {
-        nombre: "Parque Nacional de los Picos de Europa",
-        imagen: "../assets/img/picos-grande.jpg",
-        descripcion: "Representa los ecosistemas ligados al bosque atlántico. Los Picos de Europa presentan la mayor formación caliza de la Europa Atlántica...",
-        superficieTotal: "66.030,36 ha.",
-        superficieSocio: "133.683,56 ha.",
-        provincias: "Asturias, León y Cantabria.",
-        comunidades: "Cantabria, Castilla y León y Principado de Asturias.",
-        coordenadas: ["43° 18' 58'' N, 5° 07' 15'' O", "43° 04' 28'' N, 4° 37' 03'' O"]
-    },
-    "donana": {
-        nombre: "Parque Nacional de Doñana",
-        imagen: "../assets/img/Doñana.jpeg",
-        descripcion: "El Parque Nacional de Doñana es un mosaico de ecosistemas que albergan una biodiversidad única en Europa...",
-        superficieTotal: "54.251 ha.",
-        superficieSocio: "Variables según zona periférica.",
-        provincias: "Huelva y Sevilla.",
-        comunidades: "Andalucía.",
-        coordenadas: ["37° 0' 0'' N, 6° 30' 0'' O"]
-    }
-};
 
 /* 2. INICIALIZACIÓN PRINCIPAL (Cuando el DOM está listo) */
-document.addEventListener("DOMContentLoaded", function() {
-    
+document.addEventListener("DOMContentLoaded", function () {
+
     // --- Carga de piezas reutilizables ---
     loadComponent('.main-header', '/components/header.html', marcarPaginaActiva);
-    loadComponent('.hero-container', '/components/hero.html'); 
+    loadComponent('.hero-container', '/components/hero.html');
     loadComponent('.main-footer', '/components/footer.html');
 
     // --- Inicializar funciones según la página actual ---
@@ -127,58 +104,49 @@ function configurarScrollHeader() {
 /**
  * MAPA: Configura Leaflet y coloca los pines de los parques
  */
-function inicializarMapa() {
+async function inicializarMapa() {
     const map = L.map('map').setView([40.4637, -3.7492], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    const parquesParaMapa = [
-        { id: 'picos-de-europa', nombre: 'Picos de Europa', coords: [43.190, -4.830], numero: 1 },
-        { id: 'donana', nombre: 'Doñana', coords: [36.992, -6.433], numero: 6 },
-        { id: 'teide', nombre: 'Teide', coords: [28.272, -16.642], numero: 3 },
-        { id: 'monfrague', nombre: 'Monfragüe', coords: [39.842, -6.046], numero: 14 }
-        // ... (resto de parques)
-    ];
+    try {
+        // Obtenemos los parques reales de la API
+        const response = await fetch('http://127.0.0.1:5000/api/parques');
+        const parques = await response.json();
 
-    parquesParaMapa.forEach(parque => {
-        const customIcon = L.divIcon({
-            className: 'bosquea-marker',
-            html: `
-                <div class="pin-shape"><div class="pin-dot"></div></div>
-                <span class="pin-number">${parque.numero}</span>
-            `,
-            iconSize: [30, 45],
-            iconAnchor: [15, 45]
+        parques.forEach((parque, index) => {
+            // CORRECCIÓN AQUÍ: Usar 'lat' y 'lon' para coincidir con tu API
+            if (parque.lat && parque.lon) {
+                const coords = [parque.lat, parque.lon];
+
+                const customIcon = L.divIcon({
+                    className: 'bosquea-marker',
+                    html: `
+                        <div class="pin-shape"><div class="pin-dot"></div></div>
+                        <span class="pin-number">${index + 1}</span>
+                    `,
+                    iconSize: [30, 45],
+                    iconAnchor: [15, 45]
+                });
+
+                // URL para ir al detalle buscando por nombre
+                const urlDetalle = `/pages/parque-detalle.html?nombre=${encodeURIComponent(parque.nombre)}`;
+                
+                L.marker(coords, { icon: customIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align:center;">
+                            <b>${parque.nombre}</b><br>
+                            <a href="${urlDetalle}" style="color:#2d5a27; font-weight:bold;">Ver Parque</a>
+                        </div>
+                    `);
+            }
         });
-
-        L.marker(parque.coords, { icon: customIcon })
-            .addTo(map)
-            .bindPopup(`<b>${parque.nombre}</b><br><a href="parque-detalle.html?id=${parque.id}">Ver Parque</a>`);
-    });
-}
-
-/**
- * PERFIL: Maneja el cambio de pestañas (Deseados, Comentarios, etc.)
- */
-function gestionarTabsPerfil() {
-    const links = document.querySelectorAll('.sidebar-link');
-    const sections = document.querySelectorAll('.content-section');
-
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = link.getAttribute('data-section');
-
-            links.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            sections.forEach(sec => {
-                sec.classList.toggle('active', sec.id === `section-${target}`);
-            });
-        });
-    });
+    } catch (error) {
+        console.error("Error al cargar marcadores del mapa:", error);
+    }
 }
 
 /**
@@ -194,43 +162,22 @@ function configurarTarjetasClicables() {
     document.querySelectorAll('.park-card').forEach(card => {
         card.style.cursor = 'pointer';
         card.addEventListener('click', (e) => {
-            const parqueId = card.getAttribute('data-id');
-            if (e.target.tagName !== 'A' && parqueId) {
-                // Ajuste de ruta dependiendo de si estamos en raíz o en /pages/
-                const prefix = window.location.pathname.includes('pages/') ? '' : 'pages/';
-                window.location.href = `${prefix}parque-detalle.html?id=${parqueId}`;
+            // Evitamos que el clic se active si el usuario pulsó un botón o enlace interno
+            if (e.target.closest('a') || e.target.closest('button')) return;
+
+            const nombreParque = card.getAttribute('data-nombre');
+
+            if (nombreParque) {
+                // Ajuste de ruta: si ya estamos en /pages/, no añadimos el prefijo
+                const isInPagesFolder = window.location.pathname.includes('pages/');
+                const prefix = isInPagesFolder ? '' : 'pages/';
+
+                // Usamos encodeURIComponent para manejar tildes y espacios correctamente
+                const nombreSeguro = encodeURIComponent(nombreParque);
+
+                window.location.href = `${prefix}parque-detalle.html?nombre=${nombreSeguro}`;
             }
         });
     });
 }
 
-/**
- * Alterna entre mostrar/ocultar contraseña en los inputs de tipo password
- */
-function gestionarVisibilidadPassword() {
-    document.querySelectorAll('.eye-icon').forEach(icon => {
-        icon.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
-            const isPassword = input.type === "password";
-            input.type = isPassword ? "text" : "password";
-            this.classList.toggle('fa-eye', isPassword);
-            this.classList.toggle('fa-eye-slash', !isPassword);
-        });
-    });
-}
-
-/**
- * Maneja el envío del formulario de registro y simula éxito
- */
-function gestionarFormularioRegistro() {
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(registerForm);
-            console.log("Registro:", Object.fromEntries(formData));
-            alert('¡Registro completado con éxito! Bienvenido a Bosquea.');
-            window.location.href = '/index.html';
-        });
-    }
-}

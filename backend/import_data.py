@@ -2,6 +2,7 @@ import os
 import csv
 from app import app
 from models import db, ParqueNatural, Ruta, Usuario, Rol
+from werkzeug.security import generate_password_hash
 
 def cargar_csv():
     with app.app_context():
@@ -51,7 +52,9 @@ def cargar_csv():
             descripcion=row['descripcion'],
             ubicacion=row['ubicacion'],
             tamanio=row['tamanio'],
-            img=row['img']
+            img=row['img'],
+            lat=row['lat'],
+            lon=row['lon']
         ))
 
         # Usuarios
@@ -63,8 +66,10 @@ def cargar_csv():
             telefono=row['telefono'],
             dni=row['dni'],
             codigo_postal=row['codigo_postal'],
-            contra=row['contra'],
-            rol_id=2 # Asignamos Rol usuario por defecto
+            icono=row['icono'],
+            # Hasheamos la contraseña del CSV antes de guardarla en la DB
+            contra=generate_password_hash(row['contra'], method='pbkdf2:sha256'),
+            rol_id=2 
         ))
 
         # Rutas

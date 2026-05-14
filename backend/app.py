@@ -1,21 +1,28 @@
+from email.utils import unquote
 import os, xlsxwriter
 import xml.etree.ElementTree as ET
 
 from flask import Flask, jsonify, request, send_file, abort, render_template, session, redirect, url_for
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime
 from io import BytesIO
-from sqlalchemy import func
+from sqlalchemy import func, or_
+from utils import procesar_avatar
 
 from models import db, Usuario, ParqueNatural, Ruta, Incidencia, Visitado, Deseado, Rol, Comentario, Avistamiento, AnimalDestacado
 
 app = Flask(__name__)
 CORS(app)
 
+#Carpeta para los iconos de los usuarios
+UPLOAD_FOLDER = os.path.join('..', 'frontend', 'assets', 'uploads')
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, '../database', 'bosquea.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 #Limite de tamaño para las imagenes
 
 db.init_app(app)
 
@@ -29,33 +36,64 @@ def verificar_admin(rol_id):
 
 @app.route('/api/auth/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    pass_cifrada = generate_password_hash(data['contra'], method='pbkdf2:sha256')
-    if Usuario.query.filter_by(email=data['email']).first():
+    # 1. Recogemos los datos (ahora vienen de un Form, no de un JSON)
+    nombre = request.form.get('nombre')
+    nickname = request.form.get('nickname')
+    email = request.form.get('email')
+    contra = request.form.get('contra')
+    dni = request.form.get('dni')
+    cp = request.form.get('codigo_postal')
+    
+    # 2. Verificamos si el usuario existe
+    if Usuario.query.filter_by(email=email).first():
         return jsonify({"error": "El usuario ya existe"}), 400
+
+    # 3. Manejo de la IMAGEN
+    nombre_imagen = "default-avatar.png"
+    if 'icono' in request.files:
+        file = request.files['icono']
+        if file.filename != '':
+            try:
+                # Le pasamos el archivo, el nombre y la carpeta de destino
+                nombre_imagen = procesar_avatar(file, nickname, UPLOAD_FOLDER)
+            except Exception as e:
+                print(f"Error al procesar: {e}")
+
+    # 4. Ciframos contraseña y guardamos
+    pass_cifrada = generate_password_hash(contra, method='pbkdf2:sha256')
     
     nuevo_usuario = Usuario(
-        nickname=data['nickname'],
-        nombre=data['nombre'],
-        email=data['email'],
+        nickname=nickname,
+        nombre=nombre,
+        email=email,
         contra=pass_cifrada,
-        dni=data['dni'],
-        codigo_postal=data.get('codigo_postal'),
-        rol_id=data.get('rol_id', 2)
+        dni=dni,
+        codigo_postal=cp,
+        icono=nombre_imagen, # Asegúrate de tener este campo en tu modelo Usuario
+        rol_id=2
     )
+    
     db.session.add(nuevo_usuario)
     db.session.commit()
+    
     return jsonify({"mensaje": "Usuario registrado con éxito"}), 201
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({"error": "El archivo excede el límite de 2MB"}), 413
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
-    usuario = Usuario.query.filter_by(email=data['email']).first()
+    usuario = Usuario.query.filter(
+    or_(Usuario.email == data['email'], Usuario.nickname == data['email'])
+).first()
 
     if usuario and check_password_hash(usuario.contra, data['contra']):
         return jsonify({
             "mensaje": "Login correcto",
             "usuario": {
+                "id": usuario.id_usuario,
                 "nickname": usuario.nickname,
                 "rol_id": usuario.rol_id,
                 "email": usuario.email
@@ -67,17 +105,26 @@ def login():
 @app.route('/api/users/<int:id>/profile', methods=['GET'])
 def get_user_profile(id):
     user = Usuario.query.get_or_404(id)
-    visitados_count = Visitado.query.filter_by(id_usuario=id).count()
-    deseados_count = Deseado.query.filter_by(id_usuario=id).count()
+    
+    # Obtener los parques reales
+    visitados = db.session.query(ParqueNatural).join(Visitado).filter(Visitado.id_usuario == id).all()
+    deseados = db.session.query(ParqueNatural).join(Deseado).filter(Deseado.id_usuario == id).all()
     
     return jsonify({
+        "id": user.id,
         "nickname": user.nickname,
         "nombre": user.nombre,
         "email": user.email,
+        "dni": user.dni,
+        "codigo_postal": user.codigo_postal,
+        "icono": user.icono, # El nombre del archivo que guardamos
+        "rol_id": user.rol_id,
         "estadisticas": {
-            "parques_visitados": visitados_count,
-            "lista_deseos": deseados_count
-        }
+            "parques_visitados": len(visitados),
+            "lista_deseos": len(deseados)
+        },
+        "lista_deseados": [{"id": p.id, "nombre": p.nombre, "img": p.img, "ubicacion": p.ubicacion} for p in deseados],
+        "lista_visitados": [{"id": p.id, "nombre": p.nombre, "img": p.img, "ubicacion": p.ubicacion} for p in visitados]
     })
 
 # --- 2. PARQUES & ANIMALES ---
@@ -90,19 +137,32 @@ def get_parques():
         "nombre": p.nombre,
         "ubicacion": p.ubicacion,
         "tamanio": p.tamanio,
+        "descripcion": p.descripcion,
+        "img": p.img,
+        "lat": p.lat,
+        "lon": p.lon
     } for p in parques])
 
-@app.route('/api/parques/<int:id>', methods=['GET'])
-def get_park_detail(id):
-    p = ParqueNatural.query.get_or_404(id)
-    # Incluimos animales destacados del parque
-    animales = AnimalDestacado.query.filter_by(id_parque=id).all()
+@app.route('/api/parques/<string:nombre>', methods=['GET'])
+def get_parque_por_nombre(nombre):
+    # unquote ayuda a manejar espacios y caracteres especiales en la URL
+    nombre_decodificado = unquote(nombre)
+    
+    # Buscamos por el campo 'nombre'
+    p = ParqueNatural.query.filter_by(nombre=nombre_decodificado).first_or_404()
+    
+    # Buscamos los animales usando el id_parque del parque encontrado
+    animales = AnimalDestacado.query.filter_by(id_parque=p.id_parque).all()
+    
     return jsonify({
         "id": p.id_parque,
         "nombre": p.nombre,
         "descripcion": p.descripcion,
         "ubicacion": p.ubicacion,
+        "tamanio": p.tamanio,
         "img": p.img,
+        "lat": p.lat,
+        "lon": p.lon,
         "animales": [{"id": a.id_animal, "nombre": a.nombre} for a in animales]
     })
 

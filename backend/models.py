@@ -24,6 +24,7 @@ class Usuario(db.Model):
     dni = db.Column(db.String(20), unique=True, nullable=False)
     codigo_postal = db.Column(db.String(10))
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    icono = db.Column(db.String(255), default='default.png')
 
     rol_id = db.Column(db.Integer, db.ForeignKey('roles.id_rol'), nullable=False)
 
@@ -36,6 +37,8 @@ class ParqueNatural(db.Model):
     ubicacion = db.Column(db.String(200), nullable=False)
     tamanio = db.Column(db.String(50))
     img = db.Column(db.String(255))
+    lat = db.Column(db.String(20))
+    lon = db.Column(db.String(20))
 
 
 # RUTAS
