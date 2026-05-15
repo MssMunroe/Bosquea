@@ -1,77 +1,73 @@
 package com.iremazrod.appmovile.pantallas
 
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import com.iremazrod.appmovile.ui.theme.Screens
-
+import com.iremazrod.appmovile.data.network.ParqueResponse
+import com.iremazrod.appmovile.data.network.RetrofitClient
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun Mapa(navController: NavController) {
-    val htmlMapa = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-            <style>
-                body { margin: 0; padding: 0; }
-                #map { height: 100vh; width: 100vw; background: #1b5e20; }
-            </style>
-        </head>
-        <body>
-            <div id="map"></div>
-            <script>
-                var map = L.map('map').setView([40.41, -3.70], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                
-                // Marcadores de prueba (como en tu imagen image_2e692e.png)
-                L.marker([43.19, -4.83]).addTo(map); // Picos de Europa
-                L.marker([36.99, -6.42]).addTo(map); // Doñana
-                L.marker([37.06, -3.36]).addTo(map).on('click', function() {
-                    Android.onMarkerClick("Sierra Nevada"); 
-                });
-            </script>
-        </body>
-        </html>
-    """.trimIndent()
+    var listaParques by remember { mutableStateOf<List<ParqueResponse>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    AndroidView(
-        factory = { context ->
-            WebView(context).apply {
-                settings.javaScriptEnabled = true
-                // Creamos la interfaz
-                addJavascriptInterface(object {
-                    @JavascriptInterface
-                    fun onMarkerClick(parque: String) {
-                        // Aquí usamos el navController para ir a detalles
-                        navController.navigate(Screens.Parque.route)
+    LaunchedEffect(Unit) {
+        try {
+            val response = RetrofitClient.instance.getParques()
+            listaParques = response
+        } catch (e: Exception) {
+            Log.e("OSM_ERROR", "${e.message}")
+        } finally {
+            isLoading = false
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // AndroidView permite usar componentes clásicos en Compose
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                MapView(context).apply {
+                    setTileSource(TileSourceFactory.MAPNIK)
+                    setMultiTouchControls(true)
+                    controller.setZoom(6.0)
+                    controller.setCenter(GeoPoint(40.4167, -3.7038)) // Madrid
+                }
+            },
+            update = { mapView ->
+                // Aquí limpiamos y añadimos los marcadores cuando carguen los datos
+                mapView.overlays.clear()
+                listaParques.forEach { parque ->
+                    val lat = parque.lat.toDoubleOrNull()
+                    val lon = parque.lon.toDoubleOrNull()
+                    if (lat != null && lon != null) {
+                        val marker = Marker(mapView)
+                        marker.position = GeoPoint(lat, lon)
+                        marker.title = parque.nombre
+                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        marker.setOnMarkerClickListener { m, _ ->
+                            navController.navigate("parque/${parque.nombre}")
+                            true
+                        }
+                        mapView.overlays.add(marker)
                     }
-                }, "Android")
-                loadDataWithBaseURL(
-                    "https://appassets.androidview", // baseUrl
-                    htmlMapa,                        // data (tu variable String)
-                    "text/html",                    // mimeType
-                    "UTF-8",                        // encoding
-                    null                            // historyUrl
-                )
+                }
+                mapView.invalidate() // Refrescar el mapa
             }
-        },
-        modifier = Modifier.fillMaxSize()
-    )
-//    AndroidView(
-//        factory = { context ->
-//            WebView(context).apply {
-//                settings.javaScriptEnabled = true // Crucial para Leaflet
-//                webViewClient = WebViewClient()
-//                loadUrl("file:///android_asset/mapa.html")
-//            }
-//        },
-//        modifier = Modifier.fillMaxSize()
-//    )
+        )
 
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+    }
 }

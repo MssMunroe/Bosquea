@@ -1,36 +1,19 @@
 package com.iremazrod.appmovile.pantallas
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,33 +24,148 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.iremazrod.appmovile.R
-
+import com.iremazrod.appmovile.data.network.RetrofitClient
+import com.iremazrod.appmovile.data.network.SearchResponse
+import kotlinx.coroutines.delay
+import com.airbnb.lottie.compose.*
 @Composable
-fun Buscar() {
+fun Buscar(navController: NavController) {
     var searchQuery by remember { mutableStateOf("") }
-    val fondoCrema = Color(0xFFF1F4E8)
+    var resultados by remember { mutableStateOf<List<SearchResponse>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize().background(fondoCrema)) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animacion_busqueda))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
+
+    // 1. LÓGICA DE BÚSQUEDA CON DEBOUNCE
+    // Esperamos 500ms después de que el usuario deje de escribir para no saturar la API
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.length >= 3) {
+            delay(500)
+            isLoading = true
+            try {
+                val response = RetrofitClient.instance.buscar(searchQuery)
+                resultados = response
+            } catch (e: Exception) {
+                Log.e("BUSQUEDA", "Error: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        } else {
+            resultados = emptyList()
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF1F4E8)) // Fondo crema
+    ) {
+        // Barra de búsqueda personalizada
         BosqueaSearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            // Sección Parques
-            item {
-                SectionHeader("Parques más visitados este mes")
+        if (isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF4B6332))
             }
-            items(3) { index -> // Aquí mapearás tus datos reales luego
-                RecommendationCard("Teide", "37.000 visitantes", R.drawable.logo)
+        } else if (searchQuery.isEmpty()) {
+            // ESTADO INICIAL: Animación de "Esperando que busques"
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier.size(250.dp)
+                )
+                Text("¿Qué parque quieres visitar hoy?", color = Color.Gray, fontWeight = FontWeight.Medium)
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                val parques = resultados.filter { it.tipo == "parque" }
+                val rutas = resultados.filter { it.tipo == "ruta" }
+
+                if (parques.isNotEmpty()) {
+                    item { SectionHeader("PARQUES NATURALES") }
+                    items(parques) { item ->
+                        RecommendationCard(
+                            nombre = item.nombre,
+                            subtexto = "Espacio Protegido",
+                            imagenUrl = if (item.url.isNotEmpty()) "http://10.0.2.2:5000/static/img/${item.url}" else null,
+                            onClick = { navController.navigate("parque/${item.nombre}") }
+                        )
+                    }
+                }
+
+                if (searchQuery.length >= 3 && resultados.isEmpty()) {
+                    item { EmptySearchState(searchQuery) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RecommendationCard(nombre: String, subtexto: String, imagenUrl: String?, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .height(90.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (imagenUrl != null) {
+                AsyncImage(
+                    model = imagenUrl,
+                    contentDescription = null,
+                    modifier = Modifier.size(65.dp).clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(R.drawable.logo)
+                )
+            } else {
+                // Icono por defecto (Verde corporativo)
+                Surface(
+                    color = Color(0xFFF1F4E8),
+                    modifier = Modifier.size(65.dp).clip(RoundedCornerShape(12.dp))
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = null,
+                        modifier = Modifier.padding(12.dp),
+                        tint = Color(0xFF4B6332)
+                    )
+                }
             }
 
-            item { Spacer(modifier = Modifier.height(20.dp)) }
+            Spacer(modifier = Modifier.width(16.dp))
 
-            // Sección Rutas
-            item {
-                SectionHeader("Rutas más visitadas este mes")
-            }
-            items(3) { index ->
-                RecommendationCard("Ruta del Cares", "", R.drawable.logo)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = nombre,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2C3E50)
+                )
+                Text(
+                    text = subtexto,
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
             }
         }
     }
@@ -75,14 +173,14 @@ fun Buscar() {
 
 @Composable
 fun SectionHeader(title: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        HorizontalDivider(color = Color.Black, thickness = 0.5.dp)
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp)) {
         Text(
             text = title,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp,
-            color = Color.Black
+            modifier = Modifier.padding(horizontal = 20.dp),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color(0xFF4B6332),
+            letterSpacing = 1.sp
         )
     }
 }
@@ -91,82 +189,74 @@ fun SectionHeader(title: String) {
 fun BosqueaSearchBar(query: String, onQueryChange: (String) -> Unit) {
     var showFilter by remember { mutableStateOf(false) }
 
-    Column {
+    Column(modifier = Modifier.background(Color.White).padding(bottom = 8.dp)) {
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            placeholder = { Text("Buscar ruta o parque natural...") },
+            placeholder = { Text("Buscar parques o senderos...") },
+            leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF4B6332)) },
             trailingIcon = {
                 IconButton(onClick = { showFilter = !showFilter }) {
-                    Icon(Icons.AutoMirrored.Filled.List, null)
+                    Icon(Icons.AutoMirrored.Filled.List, null, tint = Color.Gray)
                 }
             },
-            shape = RoundedCornerShape(35.dp)
+            shape = RoundedCornerShape(35.dp),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF4B6332),
+                unfocusedBorderColor = Color(0xFFE0E0E0)
+            )
         )
 
-        // El filtro de image_a2949c.png
         AnimatedVisibility(visible = showFilter) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .background(Color(0xFFC5E1A5), RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF1F4E8), RoundedCornerShape(12.dp))
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 FilterChip("Rutas", isSelected = true)
                 FilterChip("Parques", isSelected = false)
-                FilterChip("Guardados", isSelected = false)
+                FilterChip("Cerca de mí", isSelected = false)
             }
         }
+    }
+}
+
+@Composable
+fun EmptySearchState(query: String) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(Icons.Default.Search, null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            "No encontramos resultados para\n\"$query\"",
+            textAlign = TextAlign.Center,
+            color = Color.Gray,
+            lineHeight = 20.sp
+        )
     }
 }
 
 @Composable
 fun FilterChip(text: String, isSelected: Boolean) {
     Surface(
-        color = if (isSelected) Color(0xFF4B3D21) else Color(0xFFFFE0B2),
-        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) Color(0xFF4B6332) else Color.White,
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, if (isSelected) Color(0xFF4B6332) else Color(0xFFE0E0E0)),
         modifier = Modifier.padding(horizontal = 4.dp)
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            color = if (isSelected) Color.White else Color(0xFF4B3D21),
-            fontSize = 14.sp
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            color = if (isSelected) Color.White else Color.Gray,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
         )
-    }
-}
-
-@Composable
-fun RecommendationCard(nombre: String, subtexto: String, imagenRes: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .height(80.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFD2B48C)) // Un tono arena/marrón claro como el de tu imagen
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = imagenRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = nombre, fontSize = 20.sp, fontWeight = FontWeight.Medium, color = Color(0xFF4B3D21))
-            }
-            Text(text = subtexto, fontSize = 12.sp, color = Color.Gray)
-        }
     }
 }

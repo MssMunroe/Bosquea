@@ -1,22 +1,15 @@
 package com.iremazrod.appmovile.pantallas
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,45 +21,54 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.iremazrod.appmovile.R
+import com.iremazrod.appmovile.data.network.ParqueResponse
+import com.iremazrod.appmovile.data.network.RetrofitClient
 
-
-data class Parque(
-    val nombre: String,
-    val descripcion: String,
-    val imagenRes: Int,
-    val imagenIzquierda: Boolean
-)
 @Composable
-fun Inicio() {
-    val parques = listOf(
-        Parque("Picos de Europa", "Es el primer parque nacional de España, en la cordillera Cantábrica...", R.drawable.logo, true),
-        Parque("Ordesa", "Parque nacional desde el 16 de agosto de 1918 y patrimonio mundial...", R.drawable.logo, false)
-        // Añade el resto de los 15 parques aquí
-    )
+fun Inicio(navController: NavController) {
+    // Estado para la lista de parques que viene de la API
+    var listaParques by remember { mutableStateOf<List<ParqueResponse>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    // Efecto de carga inicial: Llama a getParques() de Flask
+    LaunchedEffect(Unit) {
+        try {
+            val response = RetrofitClient.instance.getParques()
+            listaParques = response
+        } catch (e: Exception) {
+            Log.e("API_ERROR", "Error al cargar parques: ${e.message}")
+        } finally {
+            isLoading = false
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F4E8))
+            .background(Color(0xFFF1F4E8)) // Fondo crema
     ) {
-        // 1. Encabezado con imagen de fondo y título (image_2e8357.png)
+        // --- CABECERA / BANNER ---
         item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(220.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.logo), // Tu imagen de fondo
-                    contentDescription = null,
+                    painter = painterResource(id = R.drawable.banner),
+                    contentDescription = "Banner Parques Nacionales",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    alpha = 0.7f // Oscurece un poco para que se lea el texto
+                    contentScale = ContentScale.Crop
                 )
+                // Overlay oscuro para que el texto blanco resalte
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.35f)))
+
                 Text(
-                    text = "La belleza de los 15\nParques Nacionales de España",
+                    text = "Explora la belleza de los\nParques Nacionales",
                     style = TextStyle(
                         color = Color.White,
                         fontSize = 24.sp,
@@ -76,72 +78,96 @@ fun Inicio() {
                     modifier = Modifier.padding(16.dp)
                 )
             }
-        }
-
-        // 2. Texto introductorio
-        item {
-            Text(
-                text = "Se celebra el centenario de la designación...",
-                modifier = Modifier.padding(24.dp),
-                textAlign = TextAlign.Center,
-                lineHeight = 24.sp,
-                color = Color.DarkGray
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                thickness = 1.dp,
-                color = Color.Gray
-            )
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // 3. Lista de Parques (Alternando imagen y texto)
-        items(parques) { parque ->
-            ParqueRow(parque)
-            Spacer(modifier = Modifier.height(24.dp))
+        // --- ESTADO DE CARGA O LISTA ---
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier.fillParentMaxHeight(0.6f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF4B6332))
+                }
+            }
+        } else {
+            // Renderizamos los parques con el diseño alterno (Imagen Izq/Der)
+            itemsIndexed(listaParques) { index, parque ->
+                ParqueRow(
+                    parque = parque,
+                    imagenIzquierda = index % 2 == 0,
+                    navController = navController
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }
 
 @Composable
-fun ParqueRow(parque: Parque) {
+fun ParqueRow(parque: ParqueResponse, imagenIzquierda: Boolean, navController: NavController) {
+    // Ya no creamos ninguna URL, usamos directamente parque.img de tu base de datos
+    val imageUrl = parque.img
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .clickable { navController.navigate("parque/${parque.nombre}") },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (parque.imagenIzquierda) {
-            ParqueImagen(parque.imagenRes)
+        if (imagenIzquierda) {
+            ParqueImagen(imageUrl)
             Spacer(modifier = Modifier.width(16.dp))
-            ParqueTexto(parque.descripcion)
+            ParqueTexto(parque.nombre, "Situado en ${parque.ubicacion}. Con una extensión de ${parque.tamanio}.")
         } else {
-            ParqueTexto(parque.descripcion)
+            ParqueTexto(parque.nombre, "Situado en ${parque.ubicacion}. Con una extensión de ${parque.tamanio}.")
             Spacer(modifier = Modifier.width(16.dp))
-            ParqueImagen(parque.imagenRes)
+            ParqueImagen(imageUrl)
         }
     }
 }
 
 @Composable
-fun RowScope.ParqueImagen(resId: Int) {
-    Image(
-        painter = painterResource(id = resId),
-        contentDescription = null,
+fun RowScope.ParqueImagen(url: String?) {
+    AsyncImage(
+        model = url, // Coil se encarga de todo si la URL es válida
+        contentDescription = "Foto del Parque",
+        error = painterResource(R.drawable.logo),
+        placeholder = painterResource(R.drawable.logo),
         modifier = Modifier
             .weight(1f)
-            .height(120.dp)
+            .height(140.dp)
             .clip(RoundedCornerShape(12.dp)),
         contentScale = ContentScale.Crop
     )
 }
 
 @Composable
-fun RowScope.ParqueTexto(texto: String) {
-    Text(
-        text = texto,
-        modifier = Modifier.weight(1.2f),
-        fontSize = 14.sp,
-        color = Color.Black
-    )
+fun RowScope.ParqueTexto(nombre: String, info: String) {
+    Column(modifier = Modifier.weight(1.2f)) {
+        Text(
+            text = nombre.uppercase(),
+            fontSize = 17.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color(0xFF4B6332)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = info,
+            fontSize = 13.sp,
+            color = Color(0xFF2C2C2C),
+            maxLines = 5,
+            textAlign = TextAlign.Justify,
+            lineHeight = 18.sp
+        )
+        Text(
+            text = "Leer más...",
+            fontSize = 12.sp,
+            color = Color(0xFF4B6332),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
 }

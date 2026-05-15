@@ -14,6 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.iremazrod.appmovile"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -42,6 +43,7 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compiler)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -49,8 +51,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.ui)
+    implementation(libs.coil.compose)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.play.services.maps)
+    implementation(libs.lottie.compose)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -65,4 +71,8 @@ dependencies {
     implementation(libs.converter.gson)
     // Para ver en la consola qué está respondiendo la API
     implementation(libs.logging.interceptor)
-}
+
+    implementation(libs.listenablefuture)
+
+    //implementation(libs.compose.openstreetmap)
+    implementation("org.osmdroid:osmdroid-android:6.1.18")}

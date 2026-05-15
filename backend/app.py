@@ -100,7 +100,12 @@ def get_user_profile(user_id):
         return jsonify({
             "id": user.id_usuario,
             "nickname": user.nickname,
+            "nombre": user.nombre,
+            "email": user.email,
+            "dni": user.dni,
+            "codigo_postal": user.codigo_postal,
             "icono": user.icono,
+            "rol_id": user.rol_id,
             "estadisticas": {
                 "lista_deseos": len(deseados),
                 "parques_visitados": len(visitados)
@@ -322,4 +327,4 @@ def import_xml():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(host='0.0.0.0', port=5000, debug=True)
