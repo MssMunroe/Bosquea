@@ -1,3 +1,6 @@
 id_usuario|nickname|nombre|email|telefono|dni|codigo_postal|contra|rol_id|icono
-1|AdminTest|Admin|admin@gmail.com|600000000|53426662z|46200|contra_admin|1|../frontend/web/assets/uploads/admin.png
-2|MssMunroe|Irene|irenemaza@gmail.com|600000001|52426663z|46200|contr4_segur4|2|../frontend/web/assets/uploads/icono_prueba.jpg
+1|AdminTest|Admin|admin@gmail.com|600000000|53426662z|46200|admin|1|admin.png
+2|MssMunroe|Irene|irenemaza@gmail.com|600000001|52426663z|46200|contr4_segur4|2|icono_prueba.jpg
+3|Prueba1|Prueba1|prueba1@gmail.com|600000001|51426663z|46200|prueba|2|icono_prueba.jpg
+4|Prueba2|Prueba2|prueba2@gmail.com|600000001|55426663z|46200|prueba|2|default.png
+5|Prueba3|Prueba3|prueba3@gmail.com|600000001|58426663z|46200|prueba|2|icono_prueba.jpg

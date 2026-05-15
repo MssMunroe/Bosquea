@@ -1,53 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="./assets/img/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bosquea - Inicio</title>
+    <title>Bosquea - Explora la Naturaleza</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/MssMunroe/Bosquea/refs/heads/main/frontend/web/assets/img/logo.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
 
-    <!-- El JS inyectará el contenido aquí -->
     <header class="main-header"></header>
-
-    <!-- Contenedor donde se cargará el Hero -->
     <div class="hero-container"></div>
 
     <main class="content-wrapper">
-
-        <!-- SECCIÓN 2: INFO (Dos cajas verdes) -->
-        <section class="info-container">
-            <div class="info-box info-left">
+        <section class="info-section">
+            <div class="info-box info-intro">
                 <h2>¿Qué es Bosquea?</h2>
-                <p>Descubre y explora parques naturales, desde nuestra app y web. Consulta mapas interactivos, rutas, y
-                    toda la información de cada lugar. Regístrate para acceder a funciones exclusivas.</p>
-                <p class="highlight">¡Únete y transforma tu forma de explorar los espacios protegidos!</p>
+                <p>Tu guía interactiva para explorar los Parques Naturales. Consulta rutas, mapas y comparte tu experiencia.</p>
+                <p class="highlight">La naturaleza te espera.</p>
             </div>
 
-            <div class="info-box info-right">
-                <h2>¿Estás registrado?</h2>
-                <p>Regístrate o inicia sesión para disfrutar de todo lo que Bosquea tiene para ti</p>
-                <button class="btn-register" onclick="window.location.href='./pages/registro.html'">Registrarse</button>
+            <div class="info-box info-cta">
+                <h2>Forma parte de la red</h2>
+                <p>Crea tu perfil para guardar tus parques favoritos y registrar tus visitas.</p>
+                <button class="btn-main-action" onclick="window.location.href='./pages/registro.html'">Empezar ahora</button>
             </div>
         </section>
 
-        <!-- SECCIÓN 3: GRID DE PARQUES (Tarjetas) -->
+        <h2 class="section-title">Parques Destacados</h2>
         <section class="parques-grid" id="contenedor-parques">
-            <p class="loading">Cargando parques naturales...</p>
+            <p class="loading">Buscando parques...</p>
         </section>
-
     </main>
 
-    <!-- El JS inyectará el contenido aquí -->
     <footer class="main-footer"></footer>
 
     <script src="./assets/js/main.js"></script>
     <script src="./assets/js/parques.js"></script>
 </body>
-
 </html>
