@@ -132,6 +132,9 @@ def cargar_csv():
 
         db.session.commit()
         print("\n--- PROCESO DE CARGA FINALIZADO ---")
+        pass
 
 if __name__ == '__main__':
-    cargar_csv()
+    with app.app_context():
+        db.create_all()
+        cargar_csv()
