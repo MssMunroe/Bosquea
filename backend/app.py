@@ -140,16 +140,36 @@ def update_user_profile(user_id):
             }), 404
 
         data = request.get_json()
-        
-        if not data or 'nombre' not in data or 'dni' not in data or 'codigo_postal' not in data:
+        if not data:
             return jsonify({
                 "estado": False, 
-                "mensaje": "Faltan campos obligatorios en la petición"
+                "mensaje": "No se recibieron datos para actualizar"
             }), 400
 
-        user.nombre = data['nombre'].strip()
-        user.dni = data['dni'].strip()
-        user.codigo_postal = data['codigo_postal'].strip()
+        if 'nickname' in data and data['nickname'].strip() != user.nickname:
+            nuevo_nickname = data['nickname'].strip()
+            if Usuario.query.filter(Usuario.nickname == nuevo_nickname).first():
+                return jsonify({"estado": False, "mensaje": "El nickname ya está en uso"}), 400
+            user.nickname = nuevo_nickname
+
+        if 'email' in data and data['email'].strip() != user.email:
+            nuevo_email = data['email'].strip()
+            if Usuario.query.filter(Usuario.email == nuevo_email).first():
+                return jsonify({"estado": False, "mensaje": "El correo electrónico ya está registrado"}), 400
+            user.email = nuevo_email
+
+        if 'nombre' in data:
+            user.nombre = data['nombre'].strip()
+
+        if 'telefono' in data:
+            user.telefono = data['telefono'].strip() if data['telefono'] else None
+
+        if 'icono' in data:
+            user.icono = data['icono'].strip()
+
+        if 'contra' in data and data['contra'].strip():
+            nueva_contra = data['contra'].strip()
+            user.contra = generate_password_hash(nueva_contra)
 
         db.session.commit()
 
