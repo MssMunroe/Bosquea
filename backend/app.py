@@ -129,6 +129,42 @@ def get_user_profile(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/users/<int:user_id>/profile', methods=['PUT'])
+def update_user_profile(user_id):
+    try:
+        user = Usuario.query.get(user_id)
+        if not user:
+            return jsonify({
+                "estado": False, 
+                "mensaje": "Usuario no encontrado"
+            }), 404
+
+        data = request.get_json()
+        
+        if not data or 'nombre' not in data or 'dni' not in data or 'codigo_postal' not in data:
+            return jsonify({
+                "estado": False, 
+                "mensaje": "Faltan campos obligatorios en la petición"
+            }), 400
+
+        user.nombre = data['nombre'].strip()
+        user.dni = data['dni'].strip()
+        user.codigo_postal = data['codigo_postal'].strip()
+
+        db.session.commit()
+
+        return jsonify({
+            "estado": True,
+            "mensaje": "¡Perfil actualizado con éxito!"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "estado": False, 
+            "mensaje": f"Error interno del servidor: {str(e)}"
+        }), 500
+    
 @app.route('/api/users/<int:user_id>/comments', methods=['GET'])
 def get_user_comments(user_id):
     try:

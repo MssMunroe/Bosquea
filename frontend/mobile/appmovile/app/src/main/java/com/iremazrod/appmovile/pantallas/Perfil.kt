@@ -29,41 +29,65 @@ import coil.compose.AsyncImage
 import com.iremazrod.appmovile.R
 import com.iremazrod.appmovile.data.network.RetrofitClient
 import com.iremazrod.appmovile.data.network.UserProfileResponse
+import com.iremazrod.appmovile.data.network.UpdateProfileRequest
 import com.iremazrod.appmovile.ui.theme.Screens
 import androidx.core.content.edit
+import kotlinx.coroutines.launch
 
 @Composable
 fun Perfil(navController: NavController) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     // 1. ESTADOS DE LA PANTALLA
     var userData by remember { mutableStateOf<UserProfileResponse?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var showEditDialog by remember { mutableStateOf(false) }
 
     // Obtenemos el userId guardado en SharedPreferences durante el Login
     val sharedPref = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     val userId = sharedPref.getInt("userId", -1)
 
-    // 2. CARGA DE DATOS DESDE LA API
-    LaunchedEffect(Unit) {
+    // Función auxiliar para traer o refrescar los datos del perfil
+    fun cargarDatosPerfil() {
         if (userId == -1) {
             Toast.makeText(context, "Sesión no válida", Toast.LENGTH_SHORT).show()
             navController.navigate(Screens.Login.route) {
-                popUpTo(0) // Limpiar historial para obligar login
+                popUpTo(0)
             }
-            return@LaunchedEffect
+            return
         }
+        scope.launch {
+            try {
+                isLoading = true
+                val response = RetrofitClient.instance.getUserProfile(userId)
+                userData = response
+            } catch (e: Exception) {
+                Log.e("PERFIL", "Error: ${e.message}")
+                Toast.makeText(context, "Error al conectar con el servidor", Toast.LENGTH_SHORT).show()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
-        try {
-            // Llamada al endpoint /api/user/<id>
-            val response = RetrofitClient.instance.getUserProfile(userId)
-            userData = response
-        } catch (e: Exception) {
-            Log.e("PERFIL", "Error: ${e.message}")
-            Toast.makeText(context, "Error al conectar con el servidor", Toast.LENGTH_SHORT).show()
-        } finally {
-            isLoading = false
-        }
+    // 2. CARGA DE DATOS DESDE LA API AL INICIAR
+    LaunchedEffect(Unit) {
+        cargarDatosPerfil()
+    }
+
+    // Diálogo Dinámico para Editar Perfil
+    if (showEditDialog && userData != null) {
+        EditarPerfilDialog(
+            user = userData!!,
+            onDismiss = { showEditDialog = false },
+            onSaveSuccess = {
+                showEditDialog = false
+                Toast.makeText(context, "¡Perfil actualizado con éxito!", Toast.LENGTH_SHORT).show()
+                cargarDatosPerfil() // Refresca los datos en la pantalla principal
+            },
+            userId = userId
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF1F4E8))) {
@@ -84,7 +108,8 @@ fun Perfil(navController: NavController) {
                     PerfilHeader(
                         fotoPerfil = user.icono ?: "default_user.png",
                         navController = navController,
-                        context = context
+                        context = context,
+                        onEditClick = { showEditDialog = true } // Abrimos el diálogo desde las opciones
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -104,13 +129,13 @@ fun Perfil(navController: NavController) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         shape = RoundedCornerShape(16.dp),
                         color = Color.White,
-                        tonalElevation = 2.dp
+                        shadowElevation = 2.dp
                     ) {
                         Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            InfoPerfilItem(Icons.Default.Person, "Nombre completo", user.nombre)
-                            InfoPerfilItem(Icons.Default.Email, "Correo electrónico", user.email)
-                            InfoPerfilItem(Icons.Default.Badge, "DNI", user.dni)
-                            InfoPerfilItem(Icons.Default.Map, "Código Postal", user.codigo_postal)
+                            InfoPerfilItem(Icons.Default.Person, "Nombre completo", user.nombre ?: "No asignado")
+                            InfoPerfilItem(Icons.Default.Email, "Correo electrónico", user.email ?: "No asignado")
+                            InfoPerfilItem(Icons.Default.Badge, "DNI", user.dni ?: "No asignado")
+                            InfoPerfilItem(Icons.Default.Map, "Código Postal", user.codigo_postal ?: "No asignado")
                         }
                     }
 
@@ -142,26 +167,11 @@ fun Perfil(navController: NavController) {
 fun PerfilHeader(
     fotoPerfil: String,
     navController: NavController,
-    context: Context
+    context: Context,
+    onEditClick: (() -> Unit)? = null
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    var showEditDialog by remember { mutableStateOf(false) } // Estado para el diálogo de edición
-
-    // --- CAMBIO DE IMAGEN: Usamos la URL que viene de la BBDD directamente ---
-    // Si tu BBDD devuelve "https://raw.githubusercontent.com...", esto funcionará solo.
     val imageUrl = fotoPerfil
-
-    // Diálogo de "En desarrollo" para Editar Perfil
-    if (showEditDialog) {
-        AlertDialog(
-            onDismissRequest = { showEditDialog = false },
-            confirmButton = {
-                TextButton(onClick = { showEditDialog = false }) { Text("Entendido") }
-            },
-            title = { Text("Editar Perfil") },
-            text = { Text("Esta funcionalidad estará disponible en la próxima actualización de Bosquea.") }
-        )
-    }
 
     Box(modifier = Modifier.fillMaxWidth().height(260.dp)) {
         // Banner
@@ -204,7 +214,7 @@ fun PerfilHeader(
                         leadingIcon = { Icon(Icons.Default.Edit, null) },
                         onClick = {
                             menuExpanded = false
-                            showEditDialog = true
+                            onEditClick?.invoke() // Disparamos la apertura del formulario
                         }
                     )
                     DropdownMenuItem(
@@ -231,7 +241,7 @@ fun PerfilHeader(
             color = Color.White
         ) {
             AsyncImage(
-                model = imageUrl, // <--- Carga directa de la URL de GitHub/BBDD
+                model = imageUrl,
                 contentDescription = "Foto de usuario",
                 placeholder = painterResource(R.drawable.logo),
                 error = painterResource(R.drawable.logo),
@@ -240,6 +250,125 @@ fun PerfilHeader(
             )
         }
     }
+}
+
+// ========================================================
+// NUEVO COMPONENTE: DIÁLOGO DE FORMULARIO PARA EDICIÓN
+// ========================================================
+@Composable
+fun EditarPerfilDialog(
+    user: UserProfileResponse,
+    userId: Int,
+    onDismiss: () -> Unit,
+    onSaveSuccess: () -> Unit
+) {
+    // Inicializamos los inputs con los valores actuales del usuario de forma segura
+    var nombre by remember { mutableStateOf(user.nombre ?: "") }
+    var dni by remember { mutableStateOf(user.dni ?: "") }
+    var cp by remember { mutableStateOf(user.codigo_postal ?: "") }
+    var isSaving by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    AlertDialog(
+        onDismissRequest = { if (!isSaving) onDismiss() },
+        title = {
+            Text(
+                text = "Modificar Datos",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4B6332),
+                fontSize = 20.sp
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre Completo") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                    enabled = !isSaving
+                )
+
+                OutlinedTextField(
+                    value = dni,
+                    onValueChange = { dni = it },
+                    label = { Text("DNI") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                    enabled = !isSaving
+                )
+
+                OutlinedTextField(
+                    value = cp,
+                    onValueChange = { cp = it },
+                    label = { Text("Código Postal") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                    enabled = !isSaving
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (nombre.isBlank() || dni.isBlank() || cp.isBlank()) {
+                        Toast.makeText(context, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    scope.launch {
+                        isSaving = true
+                        try {
+                            val request = UpdateProfileRequest(
+                                nombre = nombre.trim(),
+                                dni = dni.trim(),
+                                codigo_postal = cp.trim()
+                            )
+                            val response = RetrofitClient.instance.updateUserProfile(userId, request)
+
+                            if (response.isSuccessful) {
+                                onSaveSuccess()
+                            } else {
+                                Toast.makeText(context, "Error del servidor al actualizar", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("UPDATE_PROFILE", "Error: ${e.message}")
+                            Toast.makeText(context, "Error de conexión de red", Toast.LENGTH_SHORT).show()
+                        } finally {
+                            isSaving = false
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B6332)),
+                shape = RoundedCornerShape(8.dp),
+                enabled = !isSaving
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color.White)
+                } else {
+                    Text("Guardar", color = Color.White)
+                }
+            }
+        },
+        dismissButton = {
+            if (!isSaving) {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancelar", color = Color.Gray)
+                }
+            }
+        },
+        shape = RoundedCornerShape(24.dp),
+        containerColor = Color.White
+    )
 }
 
 @Composable

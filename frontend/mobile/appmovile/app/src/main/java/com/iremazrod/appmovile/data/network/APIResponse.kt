@@ -2,15 +2,15 @@ package com.iremazrod.appmovile.data.network
 
 import com.google.gson.annotations.SerializedName
 
-// --- 1. CLASES GENERALES (REUTILIZABLES) ---
+// --- CLASES GENERALES ---
 
 data class GeneralResponse(
     val mensaje: String? = null,
     val error: String? = null,
-    val estado: Boolean? = null // Usado en el toggle de favoritos
+    val estado: Boolean? = null
 )
 
-// --- 2. AUTENTICACIÓN (LOGIN/REGISTRO) ---
+// --- AUTENTICACIÓN ---
 
 data class LoginRequest(
     val email: String,
@@ -29,17 +29,17 @@ data class UsuarioData(
     val email: String
 )
 
-// --- 3. PERFIL DE USUARIO Y ESTADÍSTICAS ---
+// --- PERFIL DE USUARIO ---
 
 data class UserProfileResponse(
     val id: Int,
     val nickname: String,
-    val nombre: String?, // Añadido
-    val email: String?,  // Añadido
-    val dni: String?,    // Añadido
-    @SerializedName("codigo_postal") val codigo_postal: String?, // Añadido
+    val nombre: String?,
+    val email: String?,
+    val dni: String?,
+    @SerializedName("codigo_postal") val codigo_postal: String?,
     val icono: String?,
-    @SerializedName("rol_id") val rol_id: Int?, // Añadido
+    @SerializedName("rol_id") val rol_id: Int?,
     val estadisticas: UserStats,
     val lista_deseados: List<ParqueResumen>,
     val lista_visitados: List<ParqueResumen>
@@ -57,7 +57,13 @@ data class ParqueResumen(
     val ubicacion: String
 )
 
-// --- 4. PARQUES Y BÚSQUEDA ---
+data class UpdateProfileRequest(
+    val nombre: String,
+    val dni: String,
+    val codigo_postal: String
+)
+
+// --- PARQUES Y BÚSQUEDA ---
 
 data class ParqueResponse(
     val id: Int,
@@ -70,49 +76,36 @@ data class ParqueResponse(
     val lon: String
 )
 
-data class ParqueDetalleResponse(
-    val id: Int,
-    val nombre: String,
-    val descripcion: String,
-    val ubicacion: String,
-    val tamanio: String,
-    val img: String,
-    val lat: String,
-    val lon: String,
-    val es_favorito: Boolean,
-    val animales: List<AnimalResponse>
-)
-
 data class AnimalResponse(
     val id: Int,
     val nombre: String
 )
 
 data class SearchResponse(
-    val tipo: String, // "parque" o "ruta"
+    val tipo: String,
     val nombre: String,
     val url: String
 )
 
-// --- 5. RUTAS ---
+// --- RUTAS ---
 
 data class RutaResponse(
     val id: Int,
     val nombre: String,
     val dificultad: String,
     val web: String? = null,
-    val parque_nombre: String? = null // Solo viene en get_all_routes
+    val parque_nombre: String? = null
 )
 
-// --- 6. INTERACCIONES (Comentarios / Incidencias) ---
+// --- INTERACCIONES ---
 
 data class ComentarioResponse(
     val id: Int,
     val contenido: String,
     val fecha: String,
-    val autor: String? = null,  // Para el detalle del parque
-    val avatar: String? = null, // Para el detalle del parque
-    val parque_nombre: String? = null // Para el perfil del usuario
+    val autor: String? = null,
+    val avatar: String? = null,
+    val parque_nombre: String? = null
 )
 
 data class PostCommentRequest(
@@ -136,18 +129,18 @@ data class FavoritoToggleRequest(
     val id_parque: Int
 )
 
-// También crea esta para recibir la respuesta
+// para recibir la respuesta
 data class FavoritoToggleResponse(
     val mensaje: String,
     val estado: Boolean
 )
 
-// --- 7. ADMINISTRACIÓN ---
+// --- ADMINISTRACIÓN ---
 
 data class CreateParkRequest(
     val nombre: String,
     val ubicacion: String,
     val tamanio: String,
     val descripcion: String?,
-    val rol_id: Int // Requerido para verificar_admin
+    val rol_id: Int
 )

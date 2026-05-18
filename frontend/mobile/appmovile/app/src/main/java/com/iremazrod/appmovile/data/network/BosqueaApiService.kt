@@ -5,7 +5,7 @@ import retrofit2.http.*
 
 interface BosqueaApiService {
 
-    // --- 1. AUTENTICACIÓN ---
+    // --- AUTENTICACIÓN ---
 
     @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
@@ -21,7 +21,7 @@ interface BosqueaApiService {
         @Field("codigo_postal") cp: String
     ): Response<GeneralResponse>
 
-    // --- 2. PERFIL Y USUARIOS ---
+    // --- PERFIL Y USUARIOS ---
 
     @GET("api/users/{id}/profile")
     suspend fun getUserProfile(@Path("id") userId: Int): UserProfileResponse
@@ -29,7 +29,13 @@ interface BosqueaApiService {
     @GET("api/users/{id}/comments")
     suspend fun getUserComments(@Path("id") userId: Int): List<ComentarioResponse>
 
-    // --- 3. PARQUES Y BÚSQUEDA ---
+    @PUT("api/users/{id}/profile")
+    suspend fun updateUserProfile(
+        @Path("id") userId: Int,
+        @Body request: UpdateProfileRequest
+    ): Response<GeneralResponse>
+
+    // --- PARQUES Y BÚSQUEDA ---
 
     @GET("api/parques")
     suspend fun getParques(): List<ParqueResponse>
@@ -43,7 +49,7 @@ interface BosqueaApiService {
     @GET("api/search")
     suspend fun buscar(@Query("q") query: String): List<SearchResponse>
 
-    // --- 4. RUTAS ---
+    // --- RUTAS ---
 
     @GET("api/routes")
     suspend fun getAllRoutes(): List<RutaResponse>
@@ -51,7 +57,7 @@ interface BosqueaApiService {
     @GET("api/parques/{id}/routes")
     suspend fun getParkRoutes(@Path("id") parkId: Int): List<RutaResponse>
 
-    // --- 5. INTERACCIONES ---
+    // --- INTERACCIONES ---
 
     @GET("api/parques/{id_parque}/comments")
     suspend fun getComments(@Path("id_parque") parkId: Int): List<ComentarioResponse>
@@ -68,18 +74,18 @@ interface BosqueaApiService {
     @POST("api/reports/incident")
     suspend fun postIncident(@Body request: IncidentRequest): Response<GeneralResponse>
 
-    // --- 6. ADMINISTRACIÓN (ADMINS ONLY) ---
+    // --- ADMINISTRACIÓN ---
 
     @POST("api/admin/parques")
     suspend fun adminCreatePark(@Body request: CreateParkRequest): Response<GeneralResponse>
 
     @GET("api/admin/report-chart")
-    suspend fun exportAdminReport(): Response<Unit> // Descarga de archivo Excel
+    suspend fun exportAdminReport(): Response<Unit>
 
     @Multipart
     @POST("api/admin/import-xml")
     suspend fun importXml(
         @Part("rol_id") rolId: Int,
-        @Part file: Any // Requiere MultipartBody.Part para el archivo XML
+        @Part file: Any
     ): Response<GeneralResponse>
 }
