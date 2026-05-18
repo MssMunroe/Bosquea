@@ -10,7 +10,7 @@ def cargar_csv():
         # LOCALIZACIÓN DE CARPETAS
         backend_dir = os.path.abspath(os.path.dirname(__file__))
         root_dir = os.path.dirname(backend_dir)
-        database_dir = os.path.join(root_dir, 'database')
+        database_dir = backend_dir
 
         print(f"Buscando archivos CSV en: {database_dir}")
 
