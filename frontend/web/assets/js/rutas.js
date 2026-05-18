@@ -12,28 +12,45 @@ async function fetchRutas() {
         contenedor.innerHTML = ""; // Limpiamos el "Cargando..."
 
         if (rutas.length === 0) {
-            contenedor.innerHTML = "<p>No hay rutas disponibles en este momento.</p>";
+            contenedor.innerHTML = "<p class='no-routes'>No hay rutas disponibles en este momento.</p>";
             return;
         }
 
         rutas.forEach(ruta => {
             const article = document.createElement("article");
-            article.className = "route-item";
+            article.className = "route-card-item";
+
+            // Comprobamos si existen datos opcionales
+            const tel = ruta.telefono || "No disponible";
+            const mail = ruta.email || "No disponible";
+            const webUrl = ruta.web || "#";
 
             article.innerHTML = `
-                <h2 class="route-title">${ruta.nombre}</h2>
-                <div class="route-grid">
-                    <div class="route-data">
-                        <p class="label">Web Oficial:</p>
-                        <p class="value"><a href="${ruta.web}" target="_blank" class="link">${ruta.web}</a></p>
+                <h2 class="route-card-title">${ruta.nombre}</h2>
+                
+                <div class="route-card-grid">
+                    <div class="grid-cell">
+                        <span class="cell-label">Teléfono:</span>
+                        <span class="cell-value">${tel}</span>
                     </div>
-                    <div class="route-data spacer-top">
-                        <p class="label">Dificultad:</p>
-                        <p class="value">${ruta.dificultad}</p>
+                    <div class="grid-cell">
+                        <span class="cell-label">Email:</span>
+                        <span class="cell-value">${mail}</span>
                     </div>
-                    <div class="route-data spacer-top full-width">
-                        <p class="label">Parque Natural:</p>
-                        <p class="value">${ruta.parque_nombre} - ${ruta.parque_ubicacion}</p>
+                    <div class="grid-cell">
+                        <span class="cell-label">Web:</span>
+                        <span class="cell-value">
+                            <a href="${webUrl}" target="_blank" class="route-link">${webUrl}</a>
+                        </span>
+                    </div>
+                    
+                    <div class="grid-cell">
+                        <span class="cell-label">Dificultad:</span>
+                        <span class="cell-value">${ruta.dificultad}</span>
+                    </div>
+                    <div class="grid-cell span-two-columns">
+                        <span class="cell-label">Parque Natural:</span>
+                        <span class="cell-value">${ruta.parque_nombre}, ${ruta.parque_ubicacion}</span>
                     </div>
                 </div>
             `;
@@ -42,6 +59,6 @@ async function fetchRutas() {
 
     } catch (error) {
         console.error("Error al cargar rutas:", error);
-        contenedor.innerHTML = "<p>Error al conectar con el servidor.</p>";
+        contenedor.innerHTML = "<p class='error-msg'>Error al conectar con el servidor.</p>";
     }
 }

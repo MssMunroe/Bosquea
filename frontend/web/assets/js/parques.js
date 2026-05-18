@@ -1,25 +1,21 @@
-/**
- * Lógica para el mapa Leaflet y el listado de parques
- */
-
 async function inicializarMapa() {
-    // 1. Crear mapa
+    // Crear mapa
     const map = L.map('map').setView([40.4637, -3.7492], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // 2. LEYENDA (Imagen arriba a la derecha)
+    // LEYENDA
     const legend = L.control({ position: 'topright' });
     legend.onAdd = function () {
         const div = L.DomUtil.create('div', 'map-legend-container');
-        div.innerHTML = `<img src="https://raw.githubusercontent.com/MssMunroe/Bosquea/refs/heads/main/frontend/web/assets/img/leyenda-mapa.png" alt="Leyenda" class="map-legend-img">`;
+        div.innerHTML = `<img src="https://raw.githubusercontent.com/MssMunroe/Bosquea/refs/heads/main/frontend/web/assets/img/leyenda.png" alt="Leyenda" class="map-legend-img">`;
         return div;
     };
     legend.addTo(map);
 
-    // 3. CARGAR MARCADORES
+    // CARGAR MARCADORES
     try {
         const res = await fetch('http://127.0.0.1:5000/api/parques');
         const parques = await res.json();
@@ -29,7 +25,6 @@ async function inicializarMapa() {
             const latitud = parseFloat(p.lat);
             const longitud = parseFloat(p.lon);
 
-            // Si la conversión falla (NaN) o no existen, saltamos este parque
             if (isNaN(latitud) || isNaN(longitud)) {
                 console.warn(`Coordenadas inválidas para: ${p.nombre}`);
                 return;
@@ -54,10 +49,10 @@ async function inicializarMapa() {
         });
     } catch (err) { console.error("Error en mapa:", err); }
 
-    // 4. FIX HEADER: Forzar al mapa a recalcular su tamaño tras cargar
+    // Forzar al mapa a recalcular su tamaño
     setTimeout(() => { map.invalidateSize(); }, 500);
 }
-// Hace que toda la card sea un enlace, pero respeta si pulsas botones internos
+
 function configurarTarjetasClicables() {
     document.querySelectorAll('.park-card').forEach(card => {
         card.addEventListener('click', (e) => {

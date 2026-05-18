@@ -37,7 +37,7 @@ def verificar_admin(rol_id):
 def request_entity_too_large(error):
     return jsonify({"error": "El archivo excede el límite de 2MB"}), 413
 
-# --- 1. AUTENTICACIÓN ---
+# --- AUTENTICACIÓN ---
 
 @app.route('/api/auth/register', methods=['POST'])
 def register():
@@ -98,7 +98,7 @@ def login():
         }), 200
     return jsonify({"error": "Email o contraseña incorrectos"}), 401
 
-# --- 2. PERFIL Y USUARIOS ---
+# --- PERFIL Y USUARIOS ---
 
 @app.route('/api/users/<int:user_id>/profile', methods=['GET'])
 def get_user_profile(user_id):
@@ -129,21 +129,24 @@ def get_user_profile(user_id):
 @app.route('/api/users/<int:user_id>/comments', methods=['GET'])
 def get_user_comments(user_id):
     try:
-        comentarios = db.session.query(Comentario, ParqueNatural.nombre)\
+        comentarios = db.session.query(Comentario, ParqueNatural.nombre, ParqueNatural.img)\
             .join(ParqueNatural, Comentario.id_parque == ParqueNatural.id_parque)\
             .filter(Comentario.id_usuario == user_id)\
             .order_by(Comentario.fecha.desc()).all()
         
         return jsonify([{
-            "id": c.Comentario.id_comentario,
-            "contenido": c.Comentario.contenido,
-            "fecha": c.Comentario.fecha.strftime("%d/%m/%Y"),
-            "parque_nombre": nombre_parque
-        } for c, nombre_parque in comentarios])
+            "id": c.id_comentario,
+            "contenido": c.contenido,
+            "fecha": c.fecha.strftime("%d/%m/%Y"),
+            "parque_nombre": nombre_parque,
+            "parque_img": imagen_parque if imagen_parque else "default-parque.jpg"
+        } for c, nombre_parque, imagen_parque in comentarios])
+        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# --- 3. PARQUES Y BÚSQUEDA ---
+
+# --- PARQUES ---
 
 @app.route('/api/parques', methods=['GET'])
 def get_parques():
@@ -166,14 +169,37 @@ def get_parque_por_nombre(nombre):
     animales = AnimalDestacado.query.filter_by(id_parque=p.id_parque).all()
     
     user_id = request.args.get('user_id')
+    
     es_favorito = bool(Deseado.query.filter_by(id_usuario=user_id, id_parque=p.id_parque).first()) if user_id else False
+    es_visitado = bool(Visitado.query.filter_by(id_usuario=user_id, id_parque=p.id_parque).first()) if user_id else False
 
     return jsonify({
-        "id": p.id_parque, "nombre": p.nombre, "descripcion": p.descripcion,
-        "ubicacion": p.ubicacion, "tamanio": p.tamanio, "img": p.img,
-        "lat": p.lat, "lon": p.lon, "es_favorito": es_favorito,
+        "id": p.id_parque, 
+        "nombre": p.nombre, 
+        "descripcion": p.descripcion,
+        "ubicacion": p.ubicacion, 
+        "tamanio": p.tamanio, 
+        "img": p.img,
+        "lat": p.lat, 
+        "lon": p.lon, 
+        "es_favorito": es_favorito,
+        "es_visitado": es_visitado,
         "animales": [{"id": a.id_animal, "nombre": a.nombre} for a in animales]
     })
+
+@app.route('/api/parques/<int:id_parque>/comments', methods=['GET'])
+def get_comments(id_parque):
+    comentarios = db.session.query(Comentario, Usuario.nickname, Usuario.icono)\
+        .join(Usuario, Comentario.id_usuario == Usuario.id_usuario)\
+        .filter(Comentario.id_parque == id_parque).order_by(Comentario.fecha.desc()).all()
+    
+    return jsonify([{
+        "id": c.id_comentario, "contenido": c.contenido, 
+        "fecha": c.fecha.strftime("%d/%m/%Y %H:%M"), "autor": nick, "avatar": icono
+    } for c, nick, icono in comentarios])
+
+
+# --- BÚSQUEDA ---
 
 @app.route('/api/search', methods=['GET'])
 def search():
@@ -181,15 +207,11 @@ def search():
     if not query:
         return jsonify([])
 
-    # Buscamos en Parques
     parques = ParqueNatural.query.filter(ParqueNatural.nombre.ilike(f'%{query}%')).all()
-    
-    # Buscamos en Rutas
     rutas = Ruta.query.filter(Ruta.nombre.ilike(f'%{query}%')).all()
 
     resultados = []
 
-    # Formateamos parques
     for p in parques:
         resultados.append({
             "tipo": "parque",
@@ -197,17 +219,17 @@ def search():
             "url": f"/pages/parque-detalle.html?nombre={p.nombre}"
         })
 
-    # Formateamos rutas
     for r in rutas:
         resultados.append({
             "tipo": "ruta",
             "nombre": r.nombre,
-            "url": "/pages/rutas.html" # O el enlace a la sección de rutas
+            "url": "/pages/rutas.html"
         })
 
     return jsonify(resultados)
 
-# --- 4. RUTAS ---
+
+# --- RUTAS ---
 
 @app.route('/api/routes', methods=['GET'])
 def get_all_routes():
@@ -226,18 +248,8 @@ def get_park_routes(id):
     rutas = Ruta.query.filter_by(id_parque=id).all()
     return jsonify([{"id": r.id_ruta, "nombre": r.nombre, "dificultad": r.dificultad} for r in rutas])
 
-# --- 5. INTERACCIONES (COMENTARIOS, AVISTAMIENTOS, INCIDENCIAS) ---
 
-@app.route('/api/parques/<int:id_parque>/comments', methods=['GET'])
-def get_comments(id_parque):
-    comentarios = db.session.query(Comentario, Usuario.nickname, Usuario.icono)\
-        .join(Usuario, Comentario.id_usuario == Usuario.id_usuario)\
-        .filter(Comentario.id_parque == id_parque).order_by(Comentario.fecha.desc()).all()
-    
-    return jsonify([{
-        "id": c.id_comentario, "contenido": c.contenido, 
-        "fecha": c.fecha.strftime("%d/%m/%Y %H:%M"), "autor": nick, "avatar": icono
-    } for c, nick, icono in comentarios])
+# --- INTERACCIONES ---
 
 @app.route('/api/comments', methods=['POST'])
 def post_comment():
@@ -269,15 +281,49 @@ def toggle_favorito():
     db.session.commit()
     return jsonify({"mensaje": "Añadido", "estado": True}), 201
 
+@app.route('/api/visitados/toggle', methods=['POST'])
+def toggle_visitado():
+    data = request.json
+    u_id, p_id = data.get('id_usuario'), data.get('id_parque')
+    
+    visitado = Visitado.query.filter_by(id_usuario=u_id, id_parque=p_id).first()
+
+    if visitado:
+        db.session.delete(visitado)
+        db.session.commit()
+        return jsonify({"mensaje": "Eliminado de visitados", "estado": False}), 200
+    
+    nuevo_visitado = Visitado(id_usuario=u_id, id_parque=p_id)
+    db.session.add(nuevo_visitado)
+    db.session.commit()
+    return jsonify({"mensaje": "Marcado como visitado", "estado": True}), 201
+
 @app.route('/api/reports/incident', methods=['POST'])
 def post_incident():
-    data = request.get_json()
-    nueva = Incidencia(descripcion=data['descripcion'], id_usuario=data['id_usuario'], estado='Pendiente')
-    db.session.add(nueva)
-    db.session.commit()
-    return jsonify({"mensaje": "Incidencia reportada"}), 201
+    try:
+        data = request.get_json()
+        
+        # Validación de seguridad 
+        if not data or 'descripcion' not in data or 'id_usuario' not in data:
+            return jsonify({"error": "Faltan datos obligatorios (descripción o usuario)"}), 400
+            
+        nueva_incidencia = Incidencia(
+            descripcion=data['descripcion'],
+            id_usuario=data['id_usuario'],
+            estado='Pendiente',
+            fecha=datetime.utcnow()
+        )
+        
+        db.session.add(nueva_incidencia)
+        db.session.commit()
+        
+        return jsonify({"mensaje": "Incidencia reportada con éxito", "id": nueva_incidencia.id_incidencia}), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
-# --- 6. ADMINISTRACIÓN (ADMINS ONLY) ---
+# --- ADMINISTRACIÓN ---
 
 @app.route('/api/admin/parques', methods=['POST'])
 def admin_create_park():

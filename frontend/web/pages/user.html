@@ -40,78 +40,126 @@
                 <i class="fas fa-chevron-right arrow-icon"></i>
             </a>
 
+            <a href="#" id="btn-logout" class="sidebar-link logout-style">
+                <i class="fas fa-sign-out-alt main-icon"></i>
+                <span>Cerrar Sesión</span>
+            </a>
         </nav>
     </aside>
 
     <main class="profile-content" id="profile-content">
 
         <section id="section-deseados" class="content-section active">
-            <div class="section-header">
-                <h2>Mis Parques Deseados</h2>
-                <span class="count-badge" id="count-deseados">0 Parques</span>
-            </div>
-
+            <h2 class="section-display-title">Deseados</h2>
             <div class="mini-parques-grid" id="grid-deseados"></div>
         </section>
 
-        <section id="section-visitados" class="content-section">
-            <div class="section-header">
-                <h2>Parques que he visitado</h2>
-                <span class="count-badge badge-visited" id="count-visitados">0 Parques</span>
-            </div>
-
+        <section id="section-visitados" class="content-section" style="display: none;">
+            <h2 class="section-display-title">Visitados</h2>
             <div class="mini-parques-grid" id="grid-visitados"></div>
         </section>
 
-
-        <section id="section-comentarios" class="content-section">
-            <div class="section-header">
-                <h2>Mis Comentarios</h2>
-                <span class="count-badge" id="count-comentarios">0 Reseñas</span>
-            </div>
-
+        <section id="section-comentarios" class="content-section" style="display: none;">
+            <h2 class="section-display-title">Comentarios</h2>
             <div class="comments-list" id="list-comentarios"></div>
         </section>
 
+        <section id="section-configuracion" class="content-section" style="display: none;">
+            <h2 class="section-display-title">Configuración</h2>
 
-        <section id="section-configuracion" class="content-section">
-            <h2>Configuración</h2>
-            <div class="config-list">
+            <div class="config-options-list">
                 <div class="config-item">
-                    <i class="fas fa-bell config-icon"></i>
-                    <span class="config-label">Notificaciones</span>
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="config-item-left">
+                        <i class="fas fa-bell config-icon"></i>
+                        <span class="config-label">Notificaciones</span>
+                    </div>
+                    <div class="config-item-right">
+                        <label class="corporate-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="corporate-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="config-item clickable-config">
+                    <div class="config-item-left">
+                        <i class="fas fa-fingerprint config-icon"></i>
+                        <span class="config-label">Seguridad</span>
+                    </div>
+                    <div class="config-item-right">
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="config-item clickable-config">
+                    <div class="config-item-left">
+                        <i class="fas fa-user config-icon"></i>
+                        <span class="config-label">Datos Perfil</span>
+                    </div>
+                    <div class="config-item-right">
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="config-item clickable-config">
+                    <div class="config-item-left">
+                        <i class="fas fa-bug config-icon"></i>
+                        <span class="config-label">Reportes</span>
+                    </div>
+                    <div class="config-item-right">
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="config-item clickable-config">
+                    <div class="config-item-left">
+                        <i class="fas fa-lock config-icon"></i>
+                        <span class="config-label">Bloqueados</span>
+                    </div>
+                    <div class="config-item-right">
+                        <span class="badge-blocked">2</span>
+                        <i class="fas fa-chevron-right config-arrow"></i>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="section-formularios" class="content-section">
-            <h2>Formularios</h2>
-            <form class="report-form" id="form-reporte">
-                <div class="form-group">
-                    <label for="email-form">Email <span class="required">*</span></label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="email-form" required="">
+        <section id="section-formularios" class="content-section" style="display: none;">
+            <h2 class="section-display-title">Formularios</h2>
+
+            <form id="form-reporte-error" class="error-report-form">
+                <div class="form-group-corporate">
+                    <label for="reporte-email">Email <span class="required-asterisk">*</span></label>
+                    <div class="input-with-icon-container">
+                        <span class="field-icon-left">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="reporte-email" class="input-corporate-readonly" readonly>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="error-desc">Describe el error <span class="required">*</span></label>
-                    <textarea id="error-desc" rows="5" required></textarea>
+
+                <div class="form-group-corporate">
+                    <label for="reporte-descripcion">Describe el error <span class="required-asterisk">*</span></label>
+                    <span class="form-field-subtitle">Por favor, detalla el problema</span>
+                    <textarea id="reporte-descripcion" class="textarea-corporate" rows="5" required></textarea>
                 </div>
+
+                <div class="form-group-corporate">
+                    <label for="file-reporte-captura">Captura del problema</label>
+
+                    <div class="drag-drop-zone" id="drop-zone-captura"
+                        onclick="document.getElementById('file-reporte-captura').click()">
+
+                        <input type="file" id="file-reporte-captura" accept="image/*" style="display: none;">
+                        <i class="fas fa-folder drag-zone-icon"></i>
+                        <p class="drag-zone-text">Arrastra el archivo o <span class="accent-link-text">buscar</span></p>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn-submit-report">Enviar Reporte</button>
             </form>
         </section>
-    </main>
 
-    <div class="sidebar-footer">
-        <button id="btn-logout" class="sidebar-link logout-style">
-            <i class="fas fa-sign-out-alt main-icon"></i>
-            <span>Cerrar Sesión</span>
-        </button>
-    </div>
+    </main>
 
 </div>

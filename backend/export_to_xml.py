@@ -6,14 +6,14 @@ from models import db, ParqueNatural, Ruta
 
 def generar_xml_real():
     with app.app_context():
-        # 1. Obtener datos de la BBDD
+        # Obtener datos de la BBDD
         parques = ParqueNatural.query.all()
         
-        # 2. Crear el elemento raíz
+        # Crear el elemento raíz
         root = ET.Element('bosquea_export')
         root.set('fecha_generacion', str(os.popen('date').read().strip()))
 
-        # 3. Bloque de Parques y sus Rutas
+        # Bloque de Parques y sus Rutas
         parques_node = ET.SubElement(root, 'parques_nacionales')
         
         for p in parques:
@@ -24,7 +24,6 @@ def generar_xml_real():
             ET.SubElement(parque_node, 'ubicacion').text = p.ubicacion
             ET.SubElement(parque_node, 'hectareas').text = str(p.tamanio)
             
-            # Buscamos las rutas asociadas a este parque en la BBDD
             rutas_node = ET.SubElement(parque_node, 'rutas_disponibles')
             rutas = Ruta.query.filter_by(id_parque=p.id_parque).all()
             
@@ -34,12 +33,12 @@ def generar_xml_real():
                 ET.SubElement(ruta_item, 'dificultad').text = r.dificultad
                 ET.SubElement(ruta_item, 'web_oficial').text = r.web if r.web else "N/A"
 
-        # 4. Formatear el XML para que sea legible (indented)
+        # Formatear el XML
         xml_string = ET.tostring(root, encoding='utf-8')
         reparsed = minidom.parseString(xml_string)
         pretty_xml = reparsed.toprettyxml(indent="  ")
 
-        # 5. Guardar en la carpeta database
+        # Guardar en la carpeta database
         backend_dir = os.path.abspath(os.path.dirname(__file__))
         ruta_salida = os.path.join(backend_dir, '../database', 'informe_parques.xml')
         

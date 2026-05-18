@@ -1,14 +1,8 @@
-/**
- * BOSQUEA - JS PRINCIPAL
- * Gestión de componentes comunes y navegación
- */
-
 document.addEventListener("DOMContentLoaded", () => {
     // Carga de piezas que se repiten en toda la web
     loadComponent('.main-header', '/components/header.html', marcarPaginaActiva);
     loadComponent('.main-footer', '/components/footer.html');
     loadComponent('.hero-container', '/components/hero.html', () => {
-        console.log("Hero cargado, inicializando búsqueda...");
         inicializarBusquedaHero();
     });
 
@@ -62,7 +56,6 @@ function inicializarBusquedaHero() {
 
     input.addEventListener('input', async (e) => {
         const text = e.target.value.trim();
-        console.log("Escribiendo:", text); // <-- Mira esto en la consola F12
 
         if (text.length < 2) {
             resultsContainer.style.display = 'none';

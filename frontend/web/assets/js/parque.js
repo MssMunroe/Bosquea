@@ -13,7 +13,6 @@ async function fetchParqueDetalle(nombreParque) {
     const contenedor = document.getElementById("parque-detail");
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    // Si hay usuario, añadimos su ID para comprobar favs
     let url = `http://127.0.0.1:5000/api/parques/${encodeURIComponent(nombreParque)}`;
     if (usuario && usuario.id) {
         url += `?user_id=${usuario.id}`;
@@ -24,73 +23,76 @@ async function fetchParqueDetalle(nombreParque) {
         if (!response.ok) throw new Error("Parque no encontrado");
         const parque = await response.json();
 
-        // Verificamos si este parque ya está en sus favoritos (opcional, pero recomendado)
-        // Por ahora, lo pintamos vacío y el usuario interactúa.
-
-        let heartHTML = "";
+        // Contenedor para las acciones del usuario (Favorito y Visitado)
+        let userActionsHTML = "";
         if (usuario) {
-            const iconoClase = parque.es_favorito ? 'fas active' : 'far';
+            const favIconClase = parque.es_favorito ? 'fas active' : 'far';
+            const visitIconClase = parque.es_visitado ? 'fas active' : 'far';
 
-            heartHTML = `
-                <button id="btn-fav" class="fav-button" onclick="toggleFav(${usuario.id}, ${parque.id})">
-                    <i id="heart-icon" class="${iconoClase} fa-heart"></i>
-                </button>
+            userActionsHTML = `
+                <div class="park-actions-group">
+                    <button id="btn-fav" class="fav-button" onclick="toggleFav(${usuario.id}, ${parque.id})" title="Añadir a deseados">
+                        <i id="heart-icon" class="${favIconClase} fa-heart"></i>
+                    </button>
+                    
+                    <button id="btn-visited" class="visited-button" onclick="toggleVisited(${usuario.id}, ${parque.id})" title="Marcar como visitado">
+                        <i id="folder-icon" class="${visitIconClase} fa-folder"></i>
+                    </button>
+                </div>
             `;
         }
 
         contenedor.innerHTML = `
-            <div class="park-header">
-                <img src="${parque.img}" alt="${parque.nombre}" class="detail-img">
-                <div class="title-wrapper">
-                    <h1 class="detail-title">${parque.nombre}</h1>
-                    ${heartHTML}
+            <div class="park-detail-wrapper">
+                <div class="park-main-header">
+                    <h1 class="detail-title">Parque Nacional de ${parque.nombre}</h1>
+                    ${userActionsHTML}
+                </div>
+                
+                <div class="image-showcase">
+                    <img src="${parque.img}" alt="${parque.nombre}" class="detail-img">
+                </div>
+                
+                <div class="park-content-body">
+                    <p class="main-description">${parque.descripcion}</p>
+                    
+                    <div class="datos-basicos-section">
+                        <h3>Datos básicos</h3>
+                        <ul class="datos-basicos-list">
+                            <li><strong>Superficie:</strong> ${parque.tamanio} ha.</li>
+                            <li><strong>Ubicación:</strong> ${parque.ubicacion}.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
-            <div class="park-info-grid">
-                <div class="info-item">
-                    <span class="label"><i class="fas fa-map-marker-alt"></i> Ubicación:</span>
-                    <span class="value">${parque.ubicacion}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label"><i class="fas fa-expand-arrows-alt"></i> Tamaño:</span>
-                    <span class="value">${parque.tamanio} hectáreas</span>
-                </div>
-            </div>
-
-            <div class="park-description">
-                <h2>Sobre el Parque</h2>
-                <p>${parque.descripcion}</p>
-            </div>
+            <div class="comments-anchor-container"></div>
         `;
 
         renderizarComentarios(parque.id);
 
     } catch (error) {
         console.error("Error:", error);
+        contenedor.innerHTML = "<p class='error-msg'>Error al cargar la información del parque.</p>";
     }
 }
 
-// Función para el click del corazón
 async function toggleFav(userId, parqueId) {
     const icon = document.getElementById("heart-icon");
-
     try {
         const response = await fetch('http://127.0.0.1:5000/api/favoritos/toggle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: userId, id_parque: parqueId })
         });
-
         const data = await response.json();
 
         if (response.ok) {
-            // Cambiamos el icono visualmente
             if (data.estado) {
-                icon.classList.replace('far', 'fas'); // Corazón relleno
+                icon.classList.replace('far', 'fas');
                 icon.classList.add('active');
             } else {
-                icon.classList.replace('fas', 'far'); // Corazón vacío
+                icon.classList.replace('fas', 'far');
                 icon.classList.remove('active');
             }
         }
@@ -99,69 +101,93 @@ async function toggleFav(userId, parqueId) {
     }
 }
 
-//Funcion para agregar comentarios
+// Para alternar el estado de "Visitado"
+async function toggleVisited(userId, parqueId) {
+    const icon = document.getElementById("folder-icon");
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/visitados/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: userId, id_parque: parqueId })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            if (data.estado) {
+                icon.classList.replace('far', 'fas');
+                icon.classList.add('active');
+                icon.classList.replace('fa-folder', 'fa-folder-open');
+            } else {
+                icon.classList.replace('fas', 'far');
+                icon.classList.remove('active');
+                icon.classList.replace('fa-folder-open', 'fa-folder');
+            }
+        }
+    } catch (error) {
+        console.error("Error al gestionar visitado:", error);
+    }
+}
+
 async function renderizarComentarios(parqueId) {
-    const contenedor = document.querySelector(".park-description");
+    const anchor = document.querySelector(".comments-anchor-container");
     const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!anchor) return;
 
     try {
         const response = await fetch(`http://127.0.0.1:5000/api/parques/${parqueId}/comments`);
         const comentarios = await response.json();
 
-        // 1. Construimos el formulario (solo si hay usuario)
         let htmlFormulario = "";
         if (usuario) {
             htmlFormulario = `
                 <div class="add-comment-box">
                     <h3>Deja un comentario</h3>
                     <textarea id="nuevo-comentario" placeholder="Escribe tu experiencia aquí..."></textarea>
-                    <button class="btn-submit-comment" onclick="enviarComentario(${parqueId})">Publicar comentario</button>
+                    <div class="btn-comment-wrapper">
+                        <button class="btn-submit-comment" onclick="enviarComentario(${parqueId})">Publicar comentario</button>
+                    </div>
                 </div>
             `;
         } else {
-            htmlFormulario = `<p class="login-prompt">Debes <a href="perfil.html">iniciar sesión</a> para comentar.</p>`;
+            htmlFormulario = `
+                <div class="login-prompt-box">
+                    <p class="login-prompt">Debes <a href="perfil.html">iniciar sesión</a> para dejar un comentario.</p>
+                </div>
+            `;
         }
 
-        // 2. Construimos la lista de comentarios
         let htmlLista = `<div id="comments-list">`;
         if (comentarios.length === 0) {
-            htmlLista += `<p class="no-comments">No hay comentarios aún. ¡Sé el primero!</p>`;
+            htmlLista += `<p class="no-comments">No hay comentarios aún. ¡Sé el primero en compartir su experiencia!</p>`;
         } else {
             comentarios.forEach(com => {
                 const nombreAvatar = com.avatar || 'default.png';
                 const rutaAvatar = `../assets/uploads/${nombreAvatar}`;
 
                 htmlLista += `
-            <div class="comment-card">
-                <img src="${rutaAvatar}" class="comment-avatar" onerror="this.src='../assets/uploads/default.png'">
-                <div class="comment-body">
-                    <div class="comment-header">
-                        <strong>@${com.autor}</strong>
-                        <span class="comment-date">${com.fecha}</span>
+                    <div class="comment-card">
+                        <img src="${rutaAvatar}" class="comment-avatar" onerror="this.src='../assets/uploads/default.png'">
+                        <div class="comment-body">
+                            <div class="comment-header">
+                                <span class="comment-author">@${com.autor}</span>
+                                <span class="comment-date">${com.fecha}</span>
+                            </div>
+                            <p class="comment-text">${com.contenido}</p>
+                        </div>
                     </div>
-                    <p>${com.contenido}</p>
-                </div>
-            </div>
-        `;
+                `;
             });
         }
         htmlLista += `</div>`;
 
-        // 3. Lo juntamos todo en un contenedor principal
-        const fullCommentsHTML = `
+        anchor.innerHTML = `
             <section class="comments-section">
                 ${htmlFormulario}
-                <hr>
-                <h3>Opiniones de otros usuarios</h3>
+                <h3 class="opinions-heading">Opiniones de otros usuarios</h3>
                 ${htmlLista}
             </section>
         `;
-
-        // Limpiamos si ya existía (por si el usuario publica varios seguidos) y lo añadimos
-        const seccionAntigua = document.querySelector(".comments-section");
-        if (seccionAntigua) seccionAntigua.remove();
-
-        contenedor.insertAdjacentHTML('afterend', fullCommentsHTML);
 
     } catch (error) {
         console.error("Error cargando comentarios:", error);
@@ -184,14 +210,14 @@ async function enviarComentario(parqueId) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contenido: contenido,
-                id_usuario: usuario.id, // Usamos el ID del localStorage
+                id_usuario: usuario.id,
                 id_parque: parqueId
             })
         });
 
         if (response.ok) {
-            textarea.value = ""; // Limpiamos el texto
-            renderizarComentarios(parqueId); // Recargamos solo la sección de comentarios
+            textarea.value = "";
+            renderizarComentarios(parqueId);
         } else {
             const err = await response.json();
             alert("Error: " + err.mensaje);

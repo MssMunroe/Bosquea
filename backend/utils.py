@@ -10,7 +10,7 @@ def procesar_avatar(file, nickname, upload_folder):
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
     
-    # 1. Hacer la imagen cuadrada (Crop centrado)
+    # Hacer la imagen cuadrada
     ancho, alto = img.size
     nuevo_lado = min(ancho, alto)
     
@@ -21,10 +21,10 @@ def procesar_avatar(file, nickname, upload_folder):
     
     img = img.crop((izq, top, der, inf))
     
-    # 2. Redimensionar
+    # Redimensionar
     img = img.resize((400, 400), Image.LANCZOS)
     
-    # 3. Guardar
+    # Guardar
     filename = secure_filename(f"avatar_{nickname}.jpg")
     filepath = os.path.join(upload_folder, filename)
     

@@ -1,6 +1,3 @@
-// =========================================================================
-// MANEJO DEL ARCHIVO
-// =========================================================================
 const fileInput = document.getElementById('icono-file');
 const dropZoneText = document.querySelector('.drop-zone-content span');
 
@@ -22,9 +19,7 @@ if (fileInput) {
     });
 }
 
-// =========================================================================
-// ENVÍO DEL FORMULARIO
-// =========================================================================
+//FORMULARIO
 const formRegistro = document.getElementById('registerForm');
 
 if (formRegistro) {
@@ -49,7 +44,6 @@ if (formRegistro) {
         formData.delete('confirm_password');
 
         try {
-            console.log("Enviando registro a la API...");
             const res = await fetch('http://127.0.0.1:5000/api/auth/register', {
                 method: 'POST',
                 body: formData 
@@ -70,9 +64,7 @@ if (formRegistro) {
     });
 }
 
-// =========================================================================
 // MOSTRAR / OCULTAR CONTRASEÑA
-// =========================================================================
 function gestionarVisibilidadPassword() {
     document.querySelectorAll('.eye-icon').forEach(icon => {
         icon.addEventListener('click', function() {

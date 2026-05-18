@@ -14,14 +14,14 @@ def cargar_csv():
 
         print(f"Buscando archivos CSV en: {database_dir}")
 
-        # 1. CREAR ROLES
+        # CREAR ROLES
         if not Rol.query.first():
             db.session.add_all([
                 Rol(id_rol=1, nombre="Administrador"),
                 Rol(id_rol=2, nombre="Usuario")
             ])
             db.session.commit()
-            print("✓ Roles iniciales creados.")
+            print("- Roles iniciales creados.")
 
         # FUNCIÓN AUXILIAR PARA CARGAR TABLAS DESDE CSV
         def importar_tabla(nombre_archivo, modelo, mapeo_func):
@@ -41,9 +41,9 @@ def cargar_csv():
                         db.session.add(objeto)
                         contador += 1
                 db.session.commit()
-                print(f"✓ {modelo.__name__}: {contador} registros cargados desde CSV.")
+                print(f"- {modelo.__name__}: {contador} registros cargados desde CSV.")
 
-        # 2. CARGA DE TABLAS PRINCIPALES (DESDE CSV)
+        # CARGA DE TABLAS PRINCIPALES
         
         importar_tabla('parques.csv', ParqueNatural, lambda row: ParqueNatural(
             id_parque=row['id_parque'], nombre=row['nombre'], descripcion=row['descripcion'],
@@ -63,7 +63,7 @@ def cargar_csv():
             dificultad=row['dificultad'], id_parque=row['id_parque']
         ))
 
-        # 3. CARGA DE DATOS DE APOYO (DIRECTOS / SEED)
+        # CARGA DE DATOS
         
         # Animales Destacados
         if not AnimalDestacado.query.first():
@@ -81,7 +81,7 @@ def cargar_csv():
             ]
             db.session.add_all(animales)
             db.session.commit()
-            print("✓ Animales destacados cargados.")
+            print("- Animales destacados cargados.")
 
         # Comentarios
         if not Comentario.query.first():
@@ -93,7 +93,7 @@ def cargar_csv():
                 Comentario(contenido="Pura naturaleza, desconexión total garantizada.", id_usuario=5, id_parque=3)
             ]
             db.session.add_all(comentarios)
-            print("✓ Comentarios de ejemplo cargados.")
+            print("- Comentarios de ejemplo cargados.")
 
         # Avistamientos
         if not Avistamiento.query.first():
@@ -103,7 +103,7 @@ def cargar_csv():
                 Avistamiento(descripcion="Huellas frescas detectadas en el sendero.", id_usuario=3, id_parque=3, id_animal=4)
             ]
             db.session.add_all(avistamientos)
-            print("✓ Avistamientos de ejemplo cargados.")
+            print("- Avistamientos de ejemplo cargados.")
 
         # Incidencias
         if not Incidencia.query.first():
@@ -113,7 +113,7 @@ def cargar_csv():
                 Incidencia(descripcion="Fuente principal sin agua.", id_usuario=3, estado="En proceso")
             ]
             db.session.add_all(incidencias)
-            print("✓ Incidencias de ejemplo cargadas.")
+            print("- Incidencias de ejemplo cargadas.")
 
         # Interacciones (Visitados y Deseados)
         if not Visitado.query.first():
@@ -121,14 +121,14 @@ def cargar_csv():
                 Visitado(id_usuario=1, id_parque=1), Visitado(id_usuario=2, id_parque=2),
                 Visitado(id_usuario=3, id_parque=3), Visitado(id_usuario=4, id_parque=4)
             ])
-            print("✓ Registro de parques visitados cargado.")
+            print("- Registro de parques visitados cargado.")
 
         if not Deseado.query.first():
             db.session.add_all([
                 Deseado(id_usuario=1, id_parque=2), Deseado(id_usuario=2, id_parque=15),
                 Deseado(id_usuario=3, id_parque=1), Deseado(id_usuario=5, id_parque=3)
             ])
-            print("✓ Lista de deseos cargada.")
+            print("- Lista de deseos cargada.")
 
         db.session.commit()
         print("\n--- PROCESO DE CARGA FINALIZADO ---")
