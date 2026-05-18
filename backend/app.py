@@ -47,6 +47,7 @@ def register():
     contra = request.form.get('contra')
     dni = request.form.get('dni')
     cp = request.form.get('codigo_postal')
+    telefono = request.form.get('telefono')
     
     if Usuario.query.filter_by(email=email).first():
         return jsonify({"error": "El usuario ya existe"}), 400
@@ -60,16 +61,25 @@ def register():
             except Exception as e:
                 print(f"Error al procesar: {e}")
 
+    if not contra:
+        return jsonify({"error": "La contraseña es obligatoria"}), 400
+
     pass_cifrada = generate_password_hash(contra, method='pbkdf2:sha256')
     
     nuevo_usuario = Usuario(
         nickname=nickname, nombre=nombre, email=email, contra=pass_cifrada,
-        dni=dni, codigo_postal=cp, icono=nombre_imagen, rol_id=2
+        dni=dni, codigo_postal=cp, icono=nombre_imagen, telefono=telefono, rol_id=2
     )
     
-    db.session.add(nuevo_usuario)
-    db.session.commit()
-    return jsonify({"mensaje": "Usuario registrado con éxito"}), 201
+    try:
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+        return jsonify({"mensaje": "Usuario registrado con éxito"}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error en la BD: {e}")
+        return jsonify({"error": "Error interno al guardar el usuario"}), 500
+
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():

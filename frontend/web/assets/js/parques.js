@@ -39,12 +39,18 @@ async function inicializarMapa() {
                 className: 'bosquea-marker',
                 html: `<div class="pin-shape"></div><span class="pin-number">${i + 1}</span>`,
                 iconSize: [32, 32],
-                iconAnchor: [16, 32] // La punta del pin
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
             });
 
             L.marker([latitud, longitud], { icon: customIcon })
                 .addTo(map)
-                .bindPopup(`<b>${p.nombre}</b><br><a href="parque-detalle.html?nombre=${encodeURIComponent(p.nombre)}">Ver Parque</a>`);
+                .bindPopup(`
+                    <b>${p.nombre}</b>
+                    <a href="parque-detalle.html?nombre=${encodeURIComponent(p.nombre)}" class="popup-link">
+                        <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right: 4px;"></i> Ver Parque
+                    </a>
+                `);
         });
     } catch (err) { console.error("Error en mapa:", err); }
 
@@ -85,16 +91,20 @@ async function fetchParquesCards() {
             card.className = 'park-card';
             card.setAttribute('data-nombre', p.nombre);
             card.innerHTML = `
+                <div class="parque-card-header">
+                    <i class="fa-solid fa-tree"></i> Parque Natural
+                </div>
                 <img src="${p.img}" alt="${p.nombre}">
                 <div class="park-card-info">
                     <h3>${p.nombre}</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> ${p.ubicacion}</p>
+                    <p class="ubicacion">${p.ubicacion}</p> 
+                    <button class="btn-visit">Visitar</button>
                 </div>
             `;
             contenedor.appendChild(card);
         });
 
-        configurarTarjetasClicables(); // Esta función ya la tienes en tu JS
+        configurarTarjetasClicables();
     } catch (err) {
         console.error("Error cargando tarjetas:", err);
         contenedor.innerHTML = "<p>Error al cargar los parques.</p>";

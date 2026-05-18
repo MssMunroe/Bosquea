@@ -1,4 +1,6 @@
-// 1. Manejo del archivo (Dropzone)
+// =========================================================================
+// MANEJO DEL ARCHIVO
+// =========================================================================
 const fileInput = document.getElementById('icono-file');
 const dropZoneText = document.querySelector('.drop-zone-content span');
 
@@ -6,62 +8,90 @@ if (fileInput) {
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
             const archivo = fileInput.files[0];
+            
+            // Validación de tamaño del archivo
             if (archivo.size > 2 * 1024 * 1024) {
                 alert("La imagen es demasiado grande (máx 2MB)");
-                fileInput.value = "";
+                fileInput.value = ""; // Limpia el input
+                dropZoneText.innerText = "Haz clic para subir o arrastra una imagen de perfil";
             } else {
+                // Muestra el nombre del archivo seleccionado en la interfaz
                 dropZoneText.innerText = `Seleccionado: ${archivo.name}`;
             }
         }
     });
 }
 
-// 2. Envío del Formulario
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
+// =========================================================================
+// ENVÍO DEL FORMULARIO
+// =========================================================================
+const formRegistro = document.getElementById('registerForm');
 
-    // Validación de seguridad básica
-    if (form.password.value !== form.confirm_password.value) {
-        alert("Las contraseñas no coinciden");
-        return;
-    }
+if (formRegistro) {
+    formRegistro.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // 1. Construcción manual y limpia del FormData
-    const formData = new FormData();
-    formData.append('nombre', document.getElementById('nombre').value);
-    formData.append('nickname', document.getElementById('nickname').value);
-    formData.append('email', document.getElementById('email').value);
-    formData.append('contra', form.password.value);
-    formData.append('dni', document.getElementById('dni').value);
-    formData.append('codigo_postal', document.getElementById('cp').value);
+        // Comprobar que las contraseñas coinciden
+        const pass = formRegistro.querySelector('input[name="password"]').value;
+        const confirmPass = formRegistro.querySelector('input[name="confirm_password"]').value;
 
-    // El archivo del icono
-    const fileInput = document.getElementById('icono-file');
-    if (fileInput && fileInput.files[0]) {
-        formData.append('icono', fileInput.files[0]);
-    }
-
-    try {
-        console.log("Enviando registro..."); // Para ver en consola F12
-        const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            alert("¡Usuario creado con éxito!");
-            // 2. REDIRECCIÓN ABSOLUTA (Prueba con la ruta completa si ../ falla)
-            window.location.replace("../index.html"); 
-        } else {
-            // Si el servidor responde con error (ej: email duplicado)
-            alert(data.error || "Error en los datos");
+        if (pass !== confirmPass) {
+            alert("Las contraseñas no coinciden");
+            return;
         }
-    } catch (error) {
-        // 3. Este bloque atrapa fallos de red o errores de sintaxis
-        console.error("Error detectado:", error);
-        alert("Error crítico: El servidor no responde.");
-    }
+
+        // Captura automática inicial
+        const formData = new FormData(formRegistro); 
+
+        formData.append('contra', pass);
+        
+        formData.delete('password');
+        formData.delete('confirm_password');
+
+        try {
+            console.log("Enviando registro a la API...");
+            const res = await fetch('http://127.0.0.1:5000/api/auth/register', {
+                method: 'POST',
+                body: formData 
+            });
+            
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("¡Usuario creado con éxito!");
+                window.location.replace("../index.html"); 
+            } else {
+                alert(data.error || "Error en los datos introducidos");
+            }
+        } catch (err) { 
+            console.error("Error detectado en la petición:", err);
+            alert("Error crítico: El servidor no responde."); 
+        }
+    });
+}
+
+// =========================================================================
+// MOSTRAR / OCULTAR CONTRASEÑA
+// =========================================================================
+function gestionarVisibilidadPassword() {
+    document.querySelectorAll('.eye-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                this.classList.remove('fa-eye-slash');
+                this.classList.add('fa-eye');
+            } else {
+                input.type = "password";
+                this.classList.remove('fa-eye');
+                this.classList.add('fa-eye-slash');
+            }
+        });
+    });
+}
+
+// Inicialización
+document.addEventListener("DOMContentLoaded", () => {
+    gestionarVisibilidadPassword();
 });

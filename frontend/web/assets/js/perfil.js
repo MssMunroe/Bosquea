@@ -61,20 +61,26 @@ function mostrarLoginEstetico() {
         <div class="login-wrapper">
             <div class="login-box">
                 <div class="input-group">
-                    <i class="fas fa-user"></i>
+                    <span class="input-icon-wrapper">
+                        <i class="far fa-user"></i>
+                    </span>
                     <input type="text" id="login-email" placeholder="Nickname o Email">
                 </div>
+                
                 <div class="input-group">
-                    <i class="fas fa-lock"></i>
+                    <span class="input-icon-wrapper">
+                        <i class="fas fa-lock"></i>
+                    </span>
                     <input type="password" id="login-password" placeholder="Contraseña">
                 </div>
+                
                 <button class="btn-login-main" id="btn-ejecutar-login">Iniciar Sesión</button>
+                
                 <p class="forgot-pass">¿Olvidaste la contraseña?</p>
-                <div class="signup-prompt">¿No tienes cuenta? <a href="registro.html">Registrarse</a></div>
-                <div class="divider"><span>O</span></div>
-                <p class="social-text">Inicia sesión con una red social</p>
-                <div class="social-icons">
-                    <i class="fab fa-facebook"></i><i class="fab fa-instagram"></i><i class="fab fa-google"></i>
+                
+                <div class="signup-prompt">
+                    <span>¿No tienes cuenta?</span> 
+                    <a href="registro.html">Registrarse</a>
                 </div>
             </div>
         </div>`;
