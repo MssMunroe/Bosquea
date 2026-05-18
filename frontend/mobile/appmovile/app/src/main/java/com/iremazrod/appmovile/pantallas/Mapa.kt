@@ -33,7 +33,6 @@ fun Mapa(navController: NavController) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // AndroidView permite usar componentes clásicos en Compose
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
@@ -41,11 +40,11 @@ fun Mapa(navController: NavController) {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
                     controller.setZoom(6.0)
-                    controller.setCenter(GeoPoint(40.4167, -3.7038)) // Madrid
+                    controller.setCenter(GeoPoint(40.4167, -3.7038))
                 }
             },
             update = { mapView ->
-                // Aquí limpiamos y añadimos los marcadores cuando carguen los datos
+                // Añadimos los marcadores
                 mapView.overlays.clear()
                 listaParques.forEach { parque ->
                     val lat = parque.lat.toDoubleOrNull()
@@ -55,7 +54,7 @@ fun Mapa(navController: NavController) {
                         marker.position = GeoPoint(lat, lon)
                         marker.title = parque.nombre
                         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        marker.setOnMarkerClickListener { m, _ ->
+                        marker.setOnMarkerClickListener { _, _ ->
                             navController.navigate("parque/${parque.nombre}")
                             true
                         }

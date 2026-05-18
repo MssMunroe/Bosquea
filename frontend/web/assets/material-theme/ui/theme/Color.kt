@@ -1,4 +1,4 @@
-package com.iremazrod.appmovile.ui.theme
+package com.example.compose
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF466730)

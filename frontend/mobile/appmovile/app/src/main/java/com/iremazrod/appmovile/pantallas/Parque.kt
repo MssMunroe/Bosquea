@@ -46,7 +46,7 @@ fun Parque(nombreParque: String, navController: NavController) {
     var parque: ParqueResponse? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // --- NUEVOS ESTADOS PARA COMENTARIOS ---
+    // --- ESTADOS PARA COMENTARIOS ---
     var listaComentarios by remember { mutableStateOf<List<ComentarioResponse>>(emptyList()) }
     var nuevoComentarioTexto by remember { mutableStateOf("") }
     var enviandoComentario by remember { mutableStateOf(false) }
@@ -59,7 +59,7 @@ fun Parque(nombreParque: String, navController: NavController) {
 
     val userId = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("userId", -1)
 
-    // Función auxiliar para recargar únicamente los comentarios
+    // recargar únicamente los comentarios
     fun cargarComentarios(idParque: Int) {
         scope.launch {
             try {
@@ -73,12 +73,20 @@ fun Parque(nombreParque: String, navController: NavController) {
 
     LaunchedEffect(nombreParque) {
         try {
+            // detalles del parque
             val p = RetrofitClient.instance.getParqueDetalle(nombreParque)
             parque = p
 
-            // Si el parque se cargó correctamente, traemos sus comentarios correspondientes
+            // comentarios
             val comentarios = RetrofitClient.instance.getComments(p.id)
             listaComentarios = comentarios
+
+            if (userId != -1) {
+                val perfil = RetrofitClient.instance.getUserProfile(userId)
+                esFavorito = perfil.lista_deseados.any { it.nombre.equals(p.nombre, ignoreCase = true) } == true
+                esVisitado = perfil.lista_visitados.any { it.nombre.equals(p.nombre, ignoreCase = true) } == true
+            }
+
         } catch (e: Exception) {
             Log.e("PARQUE_DETALLE", "Error: ${e.message}")
             Toast.makeText(context, "No se pudo cargar la información del parque", Toast.LENGTH_SHORT).show()
@@ -137,11 +145,32 @@ fun Parque(nombreParque: String, navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // --- BOTÓN VISITADO ---
                     ActionIconButton(
                         icon = if (esVisitado) Icons.Filled.CheckCircle else Icons.Outlined.CheckCircle,
                         label = if (esVisitado) "Visitado" else "Marcar visita",
                         color = if (esVisitado) Color(0xFF4B6332) else Color.Gray,
-                        onClick = { esVisitado = !esVisitado }
+                        onClick = {
+                            if (userId == -1) {
+                                Toast.makeText(context, "Inicia sesión para marcar como visitado", Toast.LENGTH_SHORT).show()
+                                return@ActionIconButton
+                            }
+                            scope.launch {
+                                try {
+                                    val request = FavoritoToggleRequest(id_usuario = userId, id_parque = p.id)
+
+                                    val response = RetrofitClient.instance.toggleVisitado(request)
+                                    if (response.isSuccessful) {
+                                        esVisitado = response.body()?.estado ?: !esVisitado
+                                        val msg = if (esVisitado) "¡Añadido a visitados!" else "Eliminado de visitados"
+                                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("VISITADO_ERROR", "${e.message}")
+                                    Toast.makeText(context, "Error al actualizar la visita", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     )
 
                     Spacer(modifier = Modifier.width(40.dp))
@@ -163,7 +192,7 @@ fun Parque(nombreParque: String, navController: NavController) {
                                         esFavorito = response.body()?.estado ?: !esFavorito
                                     }
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "{$e} Error al actualizar favoritos", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "[$e] Error al actualizar favoritos", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -218,9 +247,7 @@ fun Parque(nombreParque: String, navController: NavController) {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // ==========================================
-                // SECCIÓN NUEVA: COMENTARIOS Y APORTACIONES
-                // ==========================================
+                // COMENTARIOS Y APORTACIONES
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "COMUNIDAD Y OPINIONES",
@@ -231,7 +258,6 @@ fun Parque(nombreParque: String, navController: NavController) {
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 1. Formulario para añadir nuevo comentario
                     Surface(
                         color = Color.White,
                         shape = RoundedCornerShape(16.dp),
@@ -277,13 +303,12 @@ fun Parque(nombreParque: String, navController: NavController) {
                                             if (res.isSuccessful) {
                                                 nuevoComentarioTexto = ""
                                                 Toast.makeText(context, "¡Comentario publicado!", Toast.LENGTH_SHORT).show()
-                                                // Recargamos la lista localmente
                                                 cargarComentarios(p.id)
                                             } else {
                                                 Toast.makeText(context, "No se pudo enviar el comentario", Toast.LENGTH_SHORT).show()
                                             }
                                         } catch (e: Exception) {
-                                            Toast.makeText(context, "{$e} Error de red al comentar", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "[$e] Error de red al comentar", Toast.LENGTH_SHORT).show()
                                         } finally {
                                             enviandoComentario = false
                                         }
@@ -306,7 +331,6 @@ fun Parque(nombreParque: String, navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 2. Feed de comentarios dinámicos
                     if (listaComentarios.isEmpty()) {
                         Text(
                             text = "Aún no hay comentarios. ¡Sé el primero en compartir tu opinión!",
@@ -331,7 +355,6 @@ fun Parque(nombreParque: String, navController: NavController) {
                                     modifier = Modifier.padding(12.dp),
                                     verticalAlignment = Alignment.Top
                                 ) {
-                                    // Avatar o iniciales del autor
                                     Icon(
                                         imageVector = Icons.Default.AccountCircle,
                                         contentDescription = "Usuario",
@@ -352,7 +375,7 @@ fun Parque(nombreParque: String, navController: NavController) {
                                                 color = Color(0xFF4B3D21)
                                             )
                                             Text(
-                                                text = comentario.fecha.take(10), // Simplifica la cadena de fecha a YYYY-MM-DD
+                                                text = comentario.fecha.take(10),
                                                 fontSize = 11.sp,
                                                 color = Color.Gray
                                             )

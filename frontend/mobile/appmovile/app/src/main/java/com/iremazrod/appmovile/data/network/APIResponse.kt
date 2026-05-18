@@ -37,6 +37,7 @@ data class UserProfileResponse(
     val nombre: String?,
     val email: String?,
     val dni: String?,
+    val telefono: String?,
     @SerializedName("codigo_postal") val codigo_postal: String?,
     val icono: String?,
     @SerializedName("rol_id") val rol_id: Int?,
@@ -58,9 +59,12 @@ data class ParqueResumen(
 )
 
 data class UpdateProfileRequest(
-    val nombre: String,
-    val dni: String,
-    val codigo_postal: String
+    val nombre: String? = null,
+    val nickname: String? = null,
+    val email: String? = null,
+    val telefono: String? = null,
+    val contra: String? = null,
+    val icono: String? = null
 )
 
 // --- PARQUES Y BÚSQUEDA ---

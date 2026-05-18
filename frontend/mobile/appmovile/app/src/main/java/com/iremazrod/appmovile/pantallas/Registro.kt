@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RegistroScreen(navController: NavController) {
-    // 1. ESTADOS DE LOS CAMPOS (Sincronizados con app.py)
+
     var nombre by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -51,7 +51,7 @@ fun RegistroScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF1F4E8))
-            .verticalScroll(rememberScrollState()) // Permite scroll si el teclado tapa campos
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -80,7 +80,7 @@ fun RegistroScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // 2. CAMPOS DE FORMULARIO
+        // CAMPOS DE FORMULARIO
         CustomRegistrationField(nombre, { nombre = it }, "Nombre Completo", Icons.Default.Person)
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -93,17 +93,16 @@ fun RegistroScreen(navController: NavController) {
         CustomRegistrationField(contra, { contra = it }, "Contraseña", Icons.Default.Lock, isPassword = true)
         Spacer(modifier = Modifier.height(12.dp))
 
-        CustomRegistrationField(dni, { dni = it }, "DNI", Icons.Default.Badge) // Badge es más apropiado para DNI
+        CustomRegistrationField(dni, { dni = it }, "DNI", Icons.Default.Badge)
         Spacer(modifier = Modifier.height(12.dp))
 
         CustomRegistrationField(cp, { cp = it }, "Código Postal", Icons.Default.LocationOn)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // 3. BOTÓN DE REGISTRO
+        // BOTÓN DE REGISTRO
         Button(
             onClick = {
-                // Validación básica antes de llamar a la API
                 if (nombre.isBlank() || nickname.isBlank() || email.isBlank() || contra.isBlank() || dni.isBlank() || cp.isBlank()) {
                     Toast.makeText(context, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
                     return@Button
@@ -112,7 +111,6 @@ fun RegistroScreen(navController: NavController) {
                 isLoading = true
                 scope.launch {
                     try {
-                        // Llamada a la API usando los parámetros Field que definimos en BosqueaApiService
                         val response = RetrofitClient.instance.register(
                             nombre = nombre,
                             nickname = nickname,
@@ -181,7 +179,7 @@ fun CustomRegistrationField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) }, // Usamos label en vez de placeholder para mejor UX
+        label = { Text(label) },
         leadingIcon = { Icon(icon, contentDescription = null, tint = Color(0xFF4B6332)) },
         modifier = Modifier.fillMaxWidth(),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,

@@ -25,24 +25,24 @@ class MainActivity : ComponentActivity() {
         // Configuración para OpenStreetMap
         org.osmdroid.config.Configuration.getInstance().userAgentValue = packageName
 
-        // Habilita el diseño de borde a borde (transparencia en barras de estado)
+        // Habilita el diseño de borde a borde
         enableEdgeToEdge()
 
         setContent {
             AppmovileTheme {
                 val navController = rememberNavController()
 
-                // Observamos la ruta actual para decidir qué componentes mostrar
+                // Ruta actual
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
-                // LÓGICA DE UI: Definimos en qué pantallas se ven las barras
+                // Definimos en qué pantallas se ven las barras
                 val showTopBar = currentRoute in listOf(
                     Screens.Inicio.route,
                     Screens.Busqueda.route,
                     Screens.Mapa.route,
                     Screens.Rutas.route,
-                    Screens.Favoritos.route // Añadido: Favoritos suele llevar el logo arriba
+                    Screens.Favoritos.route
                 )
 
                 val showBottomBar = currentRoute in listOf(
@@ -66,13 +66,13 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    // El Box con innerPadding evita que el contenido se oculte tras las barras
+                    // El Box con innerPadding para evitar que se oculte tras las barras
                     Box(modifier = Modifier.padding(innerPadding)) {
                         NavHost(
                             navController = navController,
                             startDestination = Screens.Splash.route,
                         ) {
-                            // Pantallas de Flujo Inicial
+                            // Pantallas Iniciales
                             composable(Screens.Splash.route) { SplashScreen(navController) }
                             composable(Screens.Login.route) { LoginScreen(navController) }
                             composable(Screens.Registro.route) { RegistroScreen(navController) }
@@ -83,14 +83,12 @@ class MainActivity : ComponentActivity() {
                             composable(Screens.Mapa.route) { Mapa(navController) }
                             composable(Screens.Rutas.route) { Rutas() }
 
-                            // Pantallas de Usuario
+                            // Pantallas Usuario
                             composable(Screens.Perfil.route) { Perfil(navController) }
                             composable(Screens.Favoritos.route) { Favoritos(navController) }
                             composable(Screens.Reporte.route) { Reporte(navController) }
 
-                            // DETALLE DEL PARQUE (CORREGIDO)
-                            // Cambiamos parqueId (Int) por parqueNombre (String)
-                            // porque el backend 'app.py' busca por nombre en /api/parques/<nombre>
+                            // Pantalla Parque
                             composable(
                                 route = "parque/{parqueNombre}",
                                 arguments = listOf(navArgument("parqueNombre") { type = NavType.StringType })

@@ -71,6 +71,11 @@ interface BosqueaApiService {
     @POST("api/favoritos/toggle")
     suspend fun toggleFavorito(@Body request: FavoritoToggleRequest): Response<GeneralResponse>
 
+    @POST("api/visitados/toggle")
+    suspend fun toggleVisitado(
+        @Body request: FavoritoToggleRequest
+    ): Response<GeneralResponse>
+
     @POST("api/reports/incident")
     suspend fun postIncident(@Body request: IncidentRequest): Response<GeneralResponse>
 

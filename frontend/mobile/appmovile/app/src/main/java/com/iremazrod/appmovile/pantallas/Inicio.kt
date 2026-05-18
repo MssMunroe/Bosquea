@@ -29,11 +29,11 @@ import com.iremazrod.appmovile.data.network.RetrofitClient
 
 @Composable
 fun Inicio(navController: NavController) {
-    // Estado para la lista de parques que viene de la API
+    // Estado para la lista de parques
     var listaParques by remember { mutableStateOf<List<ParqueResponse>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Efecto de carga inicial: Llama a getParques() de Flask
+    // Efecto de carga inicial
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.instance.getParques()
@@ -48,9 +48,9 @@ fun Inicio(navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F4E8)) // Fondo crema
+            .background(Color(0xFFF1F4E8))
     ) {
-        // --- CABECERA / BANNER ---
+        // --- CABECERA ---
         item {
             Box(
                 modifier = Modifier
@@ -64,7 +64,6 @@ fun Inicio(navController: NavController) {
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                // Overlay oscuro para que el texto blanco resalte
                 Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.35f)))
 
                 Text(
@@ -92,7 +91,6 @@ fun Inicio(navController: NavController) {
                 }
             }
         } else {
-            // Renderizamos los parques con el diseño alterno (Imagen Izq/Der)
             itemsIndexed(listaParques) { index, parque ->
                 ParqueRow(
                     parque = parque,
@@ -107,7 +105,6 @@ fun Inicio(navController: NavController) {
 
 @Composable
 fun ParqueRow(parque: ParqueResponse, imagenIzquierda: Boolean, navController: NavController) {
-    // Ya no creamos ninguna URL, usamos directamente parque.img de tu base de datos
     val imageUrl = parque.img
 
     Row(
@@ -132,7 +129,7 @@ fun ParqueRow(parque: ParqueResponse, imagenIzquierda: Boolean, navController: N
 @Composable
 fun RowScope.ParqueImagen(url: String?) {
     AsyncImage(
-        model = url, // Coil se encarga de todo si la URL es válida
+        model = url,
         contentDescription = "Foto del Parque",
         error = painterResource(R.drawable.logo),
         placeholder = painterResource(R.drawable.logo),

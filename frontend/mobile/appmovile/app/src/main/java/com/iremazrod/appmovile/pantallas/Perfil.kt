@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -42,7 +43,7 @@ fun Perfil(navController: NavController) {
     // 1. ESTADOS DE LA PANTALLA
     var userData by remember { mutableStateOf<UserProfileResponse?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    var showEditDialog by remember { mutableStateOf(false) }
+    var showEditWindow by remember { mutableStateOf(false) } // Controla si estamos en modo ver o editar
 
     // Obtenemos el userId guardado en SharedPreferences durante el Login
     val sharedPref = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -71,92 +72,93 @@ fun Perfil(navController: NavController) {
         }
     }
 
-    // 2. CARGA DE DATOS DESDE LA API AL INICIAR
+    // CARGA DE DATOS
     LaunchedEffect(Unit) {
         cargarDatosPerfil()
     }
 
-    // Diálogo Dinámico para Editar Perfil
-    if (showEditDialog && userData != null) {
-        EditarPerfilDialog(
+    // VENTANA COMPLETA DE EDICIÓN
+    if (showEditWindow && userData != null) {
+        EditarPerfilVentana(
             user = userData!!,
-            onDismiss = { showEditDialog = false },
+            userId = userId,
+            onDismiss = { showEditWindow = false },
             onSaveSuccess = {
-                showEditDialog = false
+                showEditWindow = false
                 Toast.makeText(context, "¡Perfil actualizado con éxito!", Toast.LENGTH_SHORT).show()
-                cargarDatosPerfil() // Refresca los datos en la pantalla principal
-            },
-            userId = userId
+                cargarDatosPerfil()
+            }
         )
-    }
-
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF1F4E8))) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color(0xFF4B6332)
-            )
-        } else {
-            userData?.let { user ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Cabecera con fotos y botones de navegación
-                    PerfilHeader(
-                        fotoPerfil = user.icono ?: "default_user.png",
-                        navController = navController,
-                        context = context,
-                        onEditClick = { showEditDialog = true } // Abrimos el diálogo desde las opciones
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Nickname destacado
-                    Text(
-                        text = "@${user.nickname}",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF4B6332)
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // 3. TARJETA DE INFORMACIÓN PERSONAL
-                    Surface(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        color = Color.White,
-                        shadowElevation = 2.dp
+    } else {
+        Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF1F4E8))) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color(0xFF4B6332)
+                )
+            } else {
+                userData?.let { user ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            InfoPerfilItem(Icons.Default.Person, "Nombre completo", user.nombre ?: "No asignado")
-                            InfoPerfilItem(Icons.Default.Email, "Correo electrónico", user.email ?: "No asignado")
-                            InfoPerfilItem(Icons.Default.Badge, "DNI", user.dni ?: "No asignado")
-                            InfoPerfilItem(Icons.Default.Map, "Código Postal", user.codigo_postal ?: "No asignado")
-                        }
-                    }
+                        // Cabecera con fotos y botones
+                        PerfilHeader(
+                            fotoPerfil = user.icono ?: "default.png",
+                            navController = navController,
+                            context = context,
+                            onEditClick = { showEditWindow = true }
+                        )
 
-                    // Badge de Admin si corresponde
-                    if ((user.rol_id ?: 0) == 1) {
-                        Card(
-                            modifier = Modifier.padding(top = 24.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF4B6332)),
-                            shape = RoundedCornerShape(20.dp)
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Nickname
+                        Text(
+                            text = "@${user.nickname}",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color(0xFF4B6332)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // INFORMACIÓN PERSONAL
+                        Surface(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White,
+                            shadowElevation = 2.dp
                         ) {
-                            Text(
-                                "ADMINISTRADOR",
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                InfoPerfilItem(Icons.Default.Person, "Nombre completo", user.nombre ?: "No asignado")
+                                InfoPerfilItem(Icons.Default.AlternateEmail, "Nombre de usuario (Nickname)", user.nickname ?: "No asignado")
+                                InfoPerfilItem(Icons.Default.Email, "Correo electrónico", user.email ?: "No asignado")
+                                InfoPerfilItem(Icons.Default.Phone, "Teléfono de contacto", user.telefono ?: "No asignado")
+                                InfoPerfilItem(Icons.Default.Badge, "DNI", user.dni ?: "No asignado")
+                                InfoPerfilItem(Icons.Default.Map, "Código Postal", user.codigo_postal ?: "No asignado")
+                            }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                        if ((user.rol_id ?: 0) == 1) {
+                            Card(
+                                modifier = Modifier.padding(top = 24.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF4B6332)),
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Text(
+                                    "ADMINISTRADOR",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
                 }
             }
         }
@@ -252,76 +254,124 @@ fun PerfilHeader(
     }
 }
 
-// ========================================================
-// NUEVO COMPONENTE: DIÁLOGO DE FORMULARIO PARA EDICIÓN
-// ========================================================
+// NUEVA COMPOSABLE: Ventana completa para la edición cómoda de los 5 campos requeridos
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditarPerfilDialog(
+fun EditarPerfilVentana(
     user: UserProfileResponse,
     userId: Int,
     onDismiss: () -> Unit,
     onSaveSuccess: () -> Unit
 ) {
-    // Inicializamos los inputs con los valores actuales del usuario de forma segura
     var nombre by remember { mutableStateOf(user.nombre ?: "") }
-    var dni by remember { mutableStateOf(user.dni ?: "") }
-    var cp by remember { mutableStateOf(user.codigo_postal ?: "") }
+    var nickname by remember { mutableStateOf(user.nickname ?: "") }
+    var telefono by remember { mutableStateOf(user.telefono ?: "") }
+    var email by remember { mutableStateOf(user.email ?: "") }
+    var contra by remember { mutableStateOf("") } // Vacio por seguridad de cara al usuario
     var isSaving by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    AlertDialog(
-        onDismissRequest = { if (!isSaving) onDismiss() },
-        title = {
-            Text(
-                text = "Modificar Datos",
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4B6332),
-                fontSize = 20.sp
+    Scaffold(
+        topBar = {
+            OptIn(ExperimentalMaterial3Api::class)
+            TopAppBar(
+                title = { Text("Modificar Perfil", fontWeight = FontWeight.Bold, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { if (!isSaving) onDismiss() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF4B6332))
             )
         },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    label = { Text("Nombre Completo") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
-                    enabled = !isSaving
-                )
+        containerColor = Color(0xFFF1F4E8)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Modifica los campos que estimes necesarios para actualizar tu cuenta.",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
 
-                OutlinedTextField(
-                    value = dni,
-                    onValueChange = { dni = it },
-                    label = { Text("DNI") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
-                    enabled = !isSaving
-                )
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = { nombre = it },
+                label = { Text("Nombre Completo") },
+                leadingIcon = { Icon(Icons.Default.Person, null, tint = Color(0xFF4B6332)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                enabled = !isSaving
+            )
 
-                OutlinedTextField(
-                    value = cp,
-                    onValueChange = { cp = it },
-                    label = { Text("Código Postal") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
-                    enabled = !isSaving
-                )
-            }
-        },
-        confirmButton = {
+            OutlinedTextField(
+                value = nickname,
+                onValueChange = { nickname = it },
+                label = { Text("Nombre de Usuario (Nickname)") },
+                leadingIcon = { Icon(Icons.Default.AlternateEmail, null, tint = Color(0xFF4B6332)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                enabled = !isSaving
+            )
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Correo Electrónico") },
+                leadingIcon = { Icon(Icons.Default.Email, null, tint = Color(0xFF4B6332)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                enabled = !isSaving
+            )
+
+            OutlinedTextField(
+                value = telefono,
+                onValueChange = { telefono = it },
+                label = { Text("Teléfono de Contacto") },
+                leadingIcon = { Icon(Icons.Default.Phone, null, tint = Color(0xFF4B6332)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                enabled = !isSaving
+            )
+
+            OutlinedTextField(
+                value = contra,
+                onValueChange = { contra = it },
+                label = { Text("Nueva Contraseña (Opcional)") },
+                placeholder = { Text("Dejar en blanco para no cambiar") },
+                leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color(0xFF4B6332)) },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF4B6332)),
+                enabled = !isSaving
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
                 onClick = {
-                    if (nombre.isBlank() || dni.isBlank() || cp.isBlank()) {
-                        Toast.makeText(context, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
+                    if (nombre.isBlank() || nickname.isBlank() || email.isBlank()) {
+                        Toast.makeText(context, "Nombre, Nickname y Email son obligatorios.", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
@@ -330,15 +380,19 @@ fun EditarPerfilDialog(
                         try {
                             val request = UpdateProfileRequest(
                                 nombre = nombre.trim(),
-                                dni = dni.trim(),
-                                codigo_postal = cp.trim()
+                                nickname = nickname.trim(),
+                                email = email.trim(),
+                                telefono = if (telefono.isNotBlank()) telefono.trim() else null,
+                                contra = if (contra.isNotBlank()) contra.trim() else null
                             )
+
                             val response = RetrofitClient.instance.updateUserProfile(userId, request)
 
-                            if (response.isSuccessful) {
+                            if (response.isSuccessful && response.body()?.estado == true) {
                                 onSaveSuccess()
                             } else {
-                                Toast.makeText(context, "Error del servidor al actualizar", Toast.LENGTH_SHORT).show()
+                                val errorMensaje = response.body()?.mensaje ?: "Error al actualizar"
+                                Toast.makeText(context, errorMensaje, Toast.LENGTH_LONG).show()
                             }
                         } catch (e: Exception) {
                             Log.e("UPDATE_PROFILE", "Error: ${e.message}")
@@ -348,27 +402,31 @@ fun EditarPerfilDialog(
                         }
                     }
                 },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B6332)),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 enabled = !isSaving
             ) {
                 if (isSaving) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color.White)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = Color.White)
                 } else {
-                    Text("Guardar", color = Color.White)
+                    Text("GUARDAR CAMBIOS", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
-        },
-        dismissButton = {
-            if (!isSaving) {
-                TextButton(onClick = onDismiss) {
-                    Text("Cancelar", color = Color.Gray)
-                }
-            }
-        },
-        shape = RoundedCornerShape(24.dp),
-        containerColor = Color.White
-    )
+        }
+    }
+}
+
+// Mantener la función original para que no haya errores de dependencias de llamadas externas
+@Composable
+fun EditarPerfilDialog(
+    user: UserProfileResponse,
+    userId: Int,
+    onDismiss: () -> Unit,
+    onSaveSuccess: () -> Unit
+) {
+    // Esta función queda depreciada internamente a favor de la vista completa, pero no se borra
+    // para asegurar la compatibilidad total de tu proyecto.
 }
 
 @Composable

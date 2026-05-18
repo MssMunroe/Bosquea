@@ -29,11 +29,10 @@ import kotlinx.coroutines.delay
 // --- SPLASH SCREEN ---
 @Composable
 fun SplashScreen(navController: NavController) {
-    // Efecto de lanzamiento: Redirige al Login tras 2 segundos
+    // Redirige al Login tras 2 segundos
     LaunchedEffect(key1 = true) {
         delay(2000)
         navController.navigate(Screens.Login.route) {
-            // Limpiamos el Splash de la pila para que el usuario no pueda volver atrás
             popUpTo(Screens.Splash.route) { inclusive = true }
         }
     }
@@ -41,7 +40,7 @@ fun SplashScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F4E8)), // Fondo crema claro
+            .background(Color(0xFFF1F4E8)),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -50,7 +49,7 @@ fun SplashScreen(navController: NavController) {
                 style = TextStyle(
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4B6332), // Verde corporativo
+                    color = Color(0xFF4B6332),
                     letterSpacing = 4.sp
                 )
             )
@@ -86,14 +85,12 @@ fun BosqueaBottomBar(navController: NavController) {
             NavigationBarItem(
                 icon = {
                     if (icon is Int) {
-                        // Para iconos personalizados desde res/drawable
                         Icon(
                             painter = painterResource(id = icon),
                             contentDescription = label,
                             modifier = Modifier.size(24.dp)
                         )
                     } else {
-                        // Para iconos predeterminados de Material
                         Icon(icon as androidx.compose.ui.graphics.vector.ImageVector, contentDescription = label)
                     }
                 },
@@ -104,7 +101,6 @@ fun BosqueaBottomBar(navController: NavController) {
                     indicatorColor = Color(0xFFF1F4E8)
                 ),
                 onClick = {
-                    // Navegación optimizada: evita duplicar pantallas en la pila
                     if (currentRoute != route) {
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -130,12 +126,12 @@ fun BosqueaTopBar(navController: NavController) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .statusBarsPadding() // Evita que el contenido quede bajo la barra de hora/batería
+                .statusBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono Perfil (Izquierda)
+            // Icono Perfil
             IconButton(onClick = { navController.navigate(Screens.Perfil.route) }) {
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
@@ -145,7 +141,7 @@ fun BosqueaTopBar(navController: NavController) {
                 )
             }
 
-            // Logo Central (Clicable para volver al inicio rápido)
+            // Logo Central
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -163,7 +159,7 @@ fun BosqueaTopBar(navController: NavController) {
                 }
             }
 
-            // Icono Favoritos (Derecha)
+            // Icono Favoritos
             IconButton(onClick = { navController.navigate(Screens.Favoritos.route) }) {
                 Icon(
                     imageVector = Icons.Default.Favorite,

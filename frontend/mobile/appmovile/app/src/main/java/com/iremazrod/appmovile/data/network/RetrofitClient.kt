@@ -6,6 +6,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
+
+    // para que cargue desde render
     private const val BASE_URL = "https://bosquea-backend.onrender.com/"
 
     // controlar tiempos de espera y logs

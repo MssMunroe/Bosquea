@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iremazrod.appmovile.data.network.RetrofitClient
@@ -27,22 +26,18 @@ import com.iremazrod.appmovile.data.network.RutaResponse
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Rutas() {
-    // Estado para almacenar las rutas agrupadas por el nombre del parque
+    // almacenar las rutas por el nombre del parque
     var rutasByParque by remember { mutableStateOf<Map<String, List<RutaResponse>>>(emptyMap()) }
     var isLoading by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
-    // Carga de datos al iniciar la pantalla
+    // Carga de datos
     LaunchedEffect(Unit) {
         try {
-            // Llamada al endpoint /api/routes que definimos en BosqueaApiService
             val response = RetrofitClient.instance.getAllRoutes()
-
-            // Agrupamos la lista: Creamos un mapa donde la clave es el nombre del parque
-            // Si el nombre del parque es nulo, usamos "Otros" por seguridad
             rutasByParque = response.groupBy { it.parque_nombre ?: "Varios" }
         } catch (e: Exception) {
-            Toast.makeText(context, "Error al conectar con el servidor", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "{$e} Error al conectar con el servidor", Toast.LENGTH_SHORT).show()
         } finally {
             isLoading = false
         }
@@ -56,14 +51,14 @@ fun Rutas() {
             )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                // Iteramos sobre el mapa agrupado
+                // Iteramos sobre el mapa
                 rutasByParque.forEach { (parqueNombre, rutas) ->
 
-                    // Cabecera pegajosa (Sticky Header) para cada grupo de parque
+                    // Cabecera
                     stickyHeader {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            color = Color(0xFFF1F4E8), // Mismo color de fondo para efecto camaleón
+                            color = Color(0xFFF1F4E8),
                             tonalElevation = 2.dp
                         ) {
                             Row(
@@ -90,12 +85,11 @@ fun Rutas() {
                         }
                     }
 
-                    // Lista de rutas pertenecientes a ese parque
+                    // Lista de rutas
                     items(rutas) { ruta ->
                         RutaSimpleCard(ruta)
                     }
 
-                    // Espacio entre grupos de parques
                     item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
@@ -112,7 +106,7 @@ fun RutaSimpleCard(ruta: RutaResponse) {
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = BorderStroke(1.dp, Color(0xFFE0E0E0)) // Borde suave
+        border = BorderStroke(1.dp, Color(0xFFE0E0E0))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -130,7 +124,7 @@ fun RutaSimpleCard(ruta: RutaResponse) {
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Etiqueta de Dificultad con lógica de colores
+                    // Etiqueta de Dificultad
                     val (diffColor, diffBg) = when (ruta.dificultad.lowercase()) {
                         "alta" -> Color(0xFFC0392B) to Color(0xFFFFEBEE)
                         "media" -> Color(0xFFD35400) to Color(0xFFFFF3E0)
@@ -160,7 +154,6 @@ fun RutaSimpleCard(ruta: RutaResponse) {
                 )
             }
 
-            // Mostrar URL o información adicional si existe
             if (!ruta.web.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 HorizontalDivider(thickness = 0.5.dp, color = Color(0xFFEEEEEE))

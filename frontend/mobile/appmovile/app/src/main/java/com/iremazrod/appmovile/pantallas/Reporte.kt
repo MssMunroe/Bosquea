@@ -2,8 +2,6 @@ package com.iremazrod.appmovile.pantallas
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape

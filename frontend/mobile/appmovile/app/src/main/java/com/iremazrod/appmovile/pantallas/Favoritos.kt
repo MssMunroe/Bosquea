@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,12 +22,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.iremazrod.appmovile.R
 import com.iremazrod.appmovile.data.network.RetrofitClient
 import com.iremazrod.appmovile.data.network.UserProfileResponse
+
+enum class VistaFavoritos {
+    CATEGORIAS,
+    LISTA_DESEOS,
+    VISITADOS
+}
 
 @Composable
 fun Favoritos(navController: NavController) {
@@ -35,19 +45,21 @@ fun Favoritos(navController: NavController) {
     var userData by remember { mutableStateOf<UserProfileResponse?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Sincronización: Usamos la misma SharedPreferences que en Login y Perfil
+    // Estado para controlar qué listado ver
+    var vistaActual by remember { mutableStateOf(VistaFavoritos.CATEGORIAS) }
+
+    // Sincronización con SharedPreferences
     val sharedPref = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     val userId = sharedPref.getInt("userId", -1)
 
     LaunchedEffect(Unit) {
         if (userId != -1) {
             try {
-                // Obtenemos los datos del usuario para el Nickname e Icono
                 val response = RetrofitClient.instance.getUserProfile(userId)
                 userData = response
             } catch (e: Exception) {
                 Log.e("FAVORITOS", "Error: ${e.message}")
-                Toast.makeText(context, "Error al cargar datos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error al cargar tus listas guardadas", Toast.LENGTH_SHORT).show()
             } finally {
                 isLoading = false
             }
@@ -68,8 +80,7 @@ fun Favoritos(navController: NavController) {
                 CircularProgressIndicator(color = Color(0xFF4B6332))
             }
         } else {
-            // Reutilizamos el Header que definimos en Perfil.kt para mantener la estética
-            // Asegúrate de que PerfilHeader no sea private en Perfil.kt
+            // Cabecera
             PerfilHeader(
                 fotoPerfil = userData?.icono ?: "default_user.png",
                 navController = navController,
@@ -78,43 +89,85 @@ fun Favoritos(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Saludo personalizado
-            Text(
-                text = "Tus Guardados",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF4B6332)
-            )
-            Text(
-                text = "@${userData?.nickname ?: "usuario"}",
-                fontSize = 16.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+            when (vistaActual) {
+                VistaFavoritos.CATEGORIAS -> {
+                    // --- SELECCIÓN DE CATEGORÍAS ---
+                    Text(
+                        text = "Tus Guardados",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF4B6332)
+                    )
+                    Text(
+                        text = "@${userData?.nickname ?: "usuario"}",
+                        fontSize = 16.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
 
-            // --- SECCIÓN DE TARJETAS DE CATEGORÍA ---
+                    // --- LISTA DE DESEOS ---
+                    FavoritoCard(
+                        titulo = "Mi Lista de Deseos",
+                        descripcion = "Visualiza los parques naturales que tienes pendientes por explorar y guardados en tu radar (${userData?.estadisticas?.lista_deseos ?: 0} parques).",
+                        imagenRes = R.drawable.banner,
+                        textoBoton = "VER MI LISTA",
+                        onClick = { vistaActual = VistaFavoritos.LISTA_DESEOS }
+                    )
 
-            // Rutas Favoritas
-            FavoritoCard(
-                titulo = "Rutas de Senderismo",
-                descripcion = "Explora los senderos que has guardado para tu próxima aventura.",
-                imagenRes = R.drawable.banner, // Puedes poner una foto de bosque aquí
-                onClick = {
-                    // Navegación a la lista de rutas filtrada (a implementar)
-                    navController.navigate("rutas")
+                    // --- PARQUES VISITADOS ---
+                    FavoritoCard(
+                        titulo = "Espacios Visitados",
+                        descripcion = "Recuerda las áreas de la Red de Parques Nacionales que ya has conquistado y completado (${userData?.estadisticas?.parques_visitados ?: 0} parques).",
+                        imagenRes = R.drawable.logo,
+                        textoBoton = "VER VISITADOS",
+                        onClick = { vistaActual = VistaFavoritos.VISITADOS }
+                    )
                 }
-            )
 
-            // Parques Favoritos
-            FavoritoCard(
-                titulo = "Parques Naturales",
-                descripcion = "Tus rincones favoritos de la Red de Parques Nacionales.",
-                imagenRes = R.drawable.logo, // O una foto de montaña
-                onClick = {
-                    // Navegación a la pantalla de inicio o búsqueda filtrada
-                    navController.navigate("inicio")
+                VistaFavoritos.LISTA_DESEOS -> {
+                    // --- PARQUES DE LA LISTA DE DESEOS ---
+                    SeccionCabeceraListado(
+                        titulo = "Mi Lista de Deseos",
+                        onVolver = { vistaActual = VistaFavoritos.CATEGORIAS }
+                    )
+
+                    val deseados = userData?.lista_deseados ?: emptyList()
+                    if (deseados.isEmpty()) {
+                        EstadoListaVacia("Aún no has añadido ningún parque a tu lista de deseos.")
+                    } else {
+                        deseados.forEach { parque ->
+                            ParqueMinisCard(
+                                nombre = parque.nombre,
+                                ubicacion = parque.ubicacion,
+                                imageUrl = parque.img,
+                                onClick = { navController.navigate("parque/${parque.nombre}") }
+                            )
+                        }
+                    }
                 }
-            )
+
+                VistaFavoritos.VISITADOS -> {
+                    // --- PARQUES VISITADOS ---
+                    SeccionCabeceraListado(
+                        titulo = "Parques Visitados",
+                        onVolver = { vistaActual = VistaFavoritos.CATEGORIAS }
+                    )
+
+                    val visitados = userData?.lista_visitados ?: emptyList()
+                    if (visitados.isEmpty()) {
+                        EstadoListaVacia("No has marcado ningún parque natural como visitado todavía.")
+                    } else {
+                        visitados.forEach { parque ->
+                            ParqueMinisCard(
+                                nombre = parque.nombre,
+                                ubicacion = parque.ubicacion,
+                                imageUrl = parque.img,
+                                onClick = { navController.navigate("parque/${parque.nombre}") }
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(40.dp))
         }
@@ -126,6 +179,7 @@ fun FavoritoCard(
     titulo: String,
     descripcion: String,
     imagenRes: Int,
+    textoBoton: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -138,13 +192,12 @@ fun FavoritoCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column {
-            // Imagen de la categoría
             Image(
                 painter = painterResource(id = imagenRes),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
                 contentScale = ContentScale.Crop
             )
@@ -174,9 +227,107 @@ fun FavoritoCard(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4B6332)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("VER GUARDADOS", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text(textoBoton, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SeccionCabeceraListado(titulo: String, onVolver: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onVolver) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Volver a categorías",
+                tint = Color(0xFF4B6332)
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = titulo,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color(0xFF4B6332)
+        )
+    }
+}
+
+@Composable
+fun ParqueMinisCard(
+    nombre: String,
+    ubicacion: String,
+    imageUrl: String?,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Imagen del Parque",
+                error = painterResource(R.drawable.logo),
+                placeholder = painterResource(R.drawable.logo),
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = nombre.uppercase(),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF4B6332)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Situado en $ubicacion",
+                    fontSize = 13.sp,
+                    color = Color.Gray,
+                    maxLines = 2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EstadoListaVacia(mensaje: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = mensaje,
+            fontSize = 15.sp,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            lineHeight = 20.sp
+        )
     }
 }

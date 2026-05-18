@@ -22,6 +22,7 @@ retrofit = "3.0.0"
 ui = "1.11.1"
 compiler = "3.2.0-alpha11"
 playServicesMaps = "20.0.0"
+uiTextGoogleFonts = "1.11.1"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
@@ -54,6 +55,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-compiler = { group = "androidx.databinding", name = "compiler", version.ref = "compiler" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

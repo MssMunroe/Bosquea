@@ -49,14 +49,14 @@ fun LoginScreen(navController: NavController) {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Botón Atrás (Vuelve al Splash o sale de la app)
+        // Botón Atrás
         Row(modifier = Modifier.fillMaxWidth()) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = verdeOscuro)
             }
         }
 
-        // Logo de la App
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo Bosquea",
@@ -65,7 +65,7 @@ fun LoginScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Campo Identificador (Nickname o Email según tu app.py)
+        // Campo Identificador
         OutlinedTextField(
             value = emailOrNick,
             onValueChange = { emailOrNick = it },
@@ -102,21 +102,19 @@ fun LoginScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Botón Iniciar Sesión con lógica de conexión
+        // Botón Iniciar Sesión
         Button(
             onClick = {
                 if (emailOrNick.isNotBlank() && password.isNotBlank()) {
                     isLoading = true
                     scope.launch {
                         try {
-                            // Llamada a la API (LoginRequest mapeado con app.py)
                             val response = RetrofitClient.instance.login(LoginRequest(emailOrNick, password))
 
                             if (response.isSuccessful && response.body() != null) {
                                 val loginResponse = response.body()!!
                                 val user = loginResponse.usuario
 
-                                // PERSISTENCIA: Corregimos el nombre de la llave aquí
                                 val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
                                 prefs.edit().apply {
                                     // CAMBIA "user_id" POR "userId"
@@ -129,7 +127,6 @@ fun LoginScreen(navController: NavController) {
 
                                 Toast.makeText(context, "¡Hola de nuevo, ${user.nickname}!", Toast.LENGTH_SHORT).show()
 
-                                // Navegamos a Inicio y eliminamos la pantalla de Login de la pila
                                 navController.navigate(Screens.Inicio.route) {
                                     popUpTo(Screens.Login.route) { inclusive = true }
                                 }
@@ -160,7 +157,7 @@ fun LoginScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Enlace a Registro
+        // Registro
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("¿Nuevo por aquí? ", color = Color.Gray)
             Text(
@@ -175,7 +172,7 @@ fun LoginScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Decoración inferior: Redes Sociales
+        // Redes Sociales
         Row(verticalAlignment = Alignment.CenterVertically) {
             HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
             Text("  o conecta con  ", color = Color.Gray, fontSize = 12.sp)
@@ -199,12 +196,12 @@ fun LoginScreen(navController: NavController) {
 
 @Composable
 fun SocialIcon(iconRes: Int) {
-    IconButton(onClick = { /* Implementar en el futuro */ }) {
+    IconButton(onClick = { /* futuro */ }) {
         Icon(
             painter = painterResource(id = iconRes),
             contentDescription = null,
             modifier = Modifier.size(35.dp),
-            tint = Color.Unspecified // Mantiene los colores originales de los logos
+            tint = Color.Unspecified
         )
     }
 }

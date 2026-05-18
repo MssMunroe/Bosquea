@@ -43,8 +43,7 @@ fun Buscar(navController: NavController) {
         iterations = LottieConstants.IterateForever
     )
 
-    // 1. LÓGICA DE BÚSQUEDA CON DEBOUNCE
-    // Esperamos 500ms después de que el usuario deje de escribir para no saturar la API
+    // Esperamos 500ms después de dejar de escribir
     LaunchedEffect(searchQuery) {
         if (searchQuery.length >= 3) {
             delay(500)
@@ -65,7 +64,7 @@ fun Buscar(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF1F4E8)) // Fondo crema
+            .background(Color(0xFFF1F4E8))
     ) {
         // Barra de búsqueda personalizada
         BosqueaSearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
@@ -75,7 +74,7 @@ fun Buscar(navController: NavController) {
                 CircularProgressIndicator(color = Color(0xFF4B6332))
             }
         } else if (searchQuery.isEmpty()) {
-            // ESTADO INICIAL: Animación de "Esperando que busques"
+            // Animación
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -91,7 +90,6 @@ fun Buscar(navController: NavController) {
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 val parques = resultados.filter { it.tipo == "parque" }
-                val rutas = resultados.filter { it.tipo == "ruta" }
 
                 if (parques.isNotEmpty()) {
                     item { SectionHeader("PARQUES NATURALES") }
@@ -99,7 +97,7 @@ fun Buscar(navController: NavController) {
                         RecommendationCard(
                             nombre = item.nombre,
                             subtexto = "Espacio Protegido",
-                            imagenUrl = if (item.url.isNotEmpty()) "http://10.0.2.2:5000/static/img/${item.url}" else null,
+                            imagenUrl = if (item.url.isNotEmpty()) "https://bosquea-backend.onrender.com/static/img/${item.url}" else null,
                             onClick = { navController.navigate("parque/${item.nombre}") }
                         )
                     }
@@ -138,7 +136,7 @@ fun RecommendationCard(nombre: String, subtexto: String, imagenUrl: String?, onC
                     placeholder = painterResource(R.drawable.logo)
                 )
             } else {
-                // Icono por defecto (Verde corporativo)
+                // Icono por defecto
                 Surface(
                     color = Color(0xFFF1F4E8),
                     modifier = Modifier.size(65.dp).clip(RoundedCornerShape(12.dp))
