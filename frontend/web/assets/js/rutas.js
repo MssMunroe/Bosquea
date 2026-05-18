@@ -6,7 +6,7 @@ async function fetchRutas() {
     const contenedor = document.getElementById("contenedor-rutas");
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/api/routes");
+        const response = await fetch("https://bosquea-backend.onrender.com/api/routes");
         const rutas = await response.json();
 
         contenedor.innerHTML = ""; // Limpiamos el "Cargando..."

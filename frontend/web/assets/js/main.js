@@ -63,7 +63,7 @@ function inicializarBusquedaHero() {
         }
 
         try {
-            const res = await fetch(`http://127.0.0.1:5000/api/search?q=${text}`);
+            const res = await fetch(`https://bosquea-backend.onrender.com/api/search?q=${text}`);
             const data = await res.json();
             
             renderizarResultados(data);

@@ -44,7 +44,7 @@ if (formRegistro) {
         formData.delete('confirm_password');
 
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/auth/register', {
+            const res = await fetch('https://bosquea-backend.onrender.com/api/auth/register', {
                 method: 'POST',
                 body: formData 
             });

@@ -17,7 +17,7 @@ async function inicializarMapa() {
 
     // CARGAR MARCADORES
     try {
-        const res = await fetch('http://127.0.0.1:5000/api/parques');
+        const res = await fetch('https://bosquea-backend.onrender.com/api/parques');
         const parques = await res.json();
 
         parques.forEach((p, i) => {
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function fetchParquesCards() {
     const contenedor = document.getElementById('contenedor-parques');
     try {
-        const res = await fetch('http://127.0.0.1:5000/api/parques');
+        const res = await fetch('https://bosquea-backend.onrender.com/api/parques');
         const parques = await res.json();
 
         contenedor.innerHTML = ""; // Limpiar cargando

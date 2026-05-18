@@ -88,7 +88,7 @@ async function cargarPerfilReal(userId) {
         container.innerHTML = htmlContent;
 
         // Obtener datos
-        const response = await fetch(`http://127.0.0.1:5000/api/users/${userId}/profile`);
+        const response = await fetch(`https://bosquea-backend.onrender.com/api/users/${userId}/profile`);
         const data = await response.json();
 
         // Rellenar información
@@ -179,7 +179,7 @@ async function renderizarComentariosUsuario(userId) {
     if (!contenedor) return;
 
     try {
-        const res = await fetch(`http://127.0.0.1:5000/api/users/${userId}/comments`);
+        const res = await fetch(`https://bosquea-backend.onrender.com/api/users/${userId}/comments`);
         const comentarios = await res.json();
 
         // Si el servidor devuelve un error en el JSON
@@ -239,7 +239,7 @@ async function ejecutarLogin() {
     const contra = document.getElementById("login-password").value;
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+        const response = await fetch('https://bosquea-backend.onrender.com/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, contra })
@@ -363,7 +363,7 @@ function cargarSeccionAdmin(seccion) {
                 const descripcion = document.getElementById("admin-parque-descripcion").value;
 
                 try {
-                    const response = await fetch('http://127.0.0.1:5000/api/admin/parques', {
+                    const response = await fetch('https://bosquea-backend.onrender.com/api/admin/parques', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -452,7 +452,7 @@ function actualizarContadores(stats) {
 
 // Funciones de utilidad para acciones de Admin
 function descargarExcel() {
-    window.open('http://127.0.0.1:5000/api/admin/report-chart', '_blank');
+    window.open('https://bosquea-backend.onrender.com/api/admin/report-chart', '_blank');
 }
 
 async function subirXML(input) {
@@ -465,7 +465,7 @@ async function subirXML(input) {
     formData.append('rol_id', usuario.rol_id);
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/admin/import-xml', {
+        const response = await fetch('https://bosquea-backend.onrender.com/api/admin/import-xml', {
             method: 'POST',
             body: formData
         });
@@ -488,7 +488,7 @@ async function eliminarParque(id, tipo) {
         if (!confirm("¿Quitar de tu lista de favoritos?")) return;
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/favoritos/toggle', {
+            const response = await fetch('https://bosquea-backend.onrender.com/api/favoritos/toggle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -509,7 +509,7 @@ async function eliminarParque(id, tipo) {
         if (!confirm("¿Borrar este comentario?")) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/comments/${id}`, {
+            const response = await fetch(`https://bosquea-backend.onrender.com/api/comments/${id}`, {
                 method: 'DELETE'
             });
 
@@ -545,7 +545,7 @@ function vincularFormularioIncidencias() {
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/reports/incident', {
+            const response = await fetch('https://bosquea-backend.onrender.com/api/reports/incident', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

@@ -13,7 +13,7 @@ async function fetchParqueDetalle(nombreParque) {
     const contenedor = document.getElementById("parque-detail");
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    let url = `http://127.0.0.1:5000/api/parques/${encodeURIComponent(nombreParque)}`;
+    let url = `https://bosquea-backend.onrender.com/api/parques/${encodeURIComponent(nombreParque)}`;
     if (usuario && usuario.id) {
         url += `?user_id=${usuario.id}`;
     }
@@ -80,7 +80,7 @@ async function fetchParqueDetalle(nombreParque) {
 async function toggleFav(userId, parqueId) {
     const icon = document.getElementById("heart-icon");
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/favoritos/toggle', {
+        const response = await fetch('https://bosquea-backend.onrender.com/api/favoritos/toggle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: userId, id_parque: parqueId })
@@ -105,7 +105,7 @@ async function toggleFav(userId, parqueId) {
 async function toggleVisited(userId, parqueId) {
     const icon = document.getElementById("folder-icon");
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/visitados/toggle', {
+        const response = await fetch('https://bosquea-backend.onrender.com/api/visitados/toggle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_usuario: userId, id_parque: parqueId })
@@ -135,7 +135,7 @@ async function renderizarComentarios(parqueId) {
     if (!anchor) return;
 
     try {
-        const response = await fetch(`http://127.0.0.1:5000/api/parques/${parqueId}/comments`);
+        const response = await fetch(`https://bosquea-backend.onrender.com/api/parques/${parqueId}/comments`);
         const comentarios = await response.json();
 
         let htmlFormulario = "";
@@ -205,7 +205,7 @@ async function enviarComentario(parqueId) {
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/comments', {
+        const response = await fetch('https://bosquea-backend.onrender.com/api/comments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
